@@ -52,6 +52,9 @@ web/main.dart.js.map
 # Firebase
 .firebase/
 firebase-debug.log
+scripts/firebase-admin-key.json
+scripts/node_modules/
+scripts/package*.json
 
 # Env
 .env
