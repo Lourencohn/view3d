@@ -1,30 +1,39 @@
 #!/usr/bin/env bash
-# Sobe emulador(es) e roda `flutter run` em todos os devices conectados.
+# Pergunta a plataforma, sobe o emulador correspondente e roda `flutter run`.
 #
 # Uso:
-#   ./scripts/dev.sh           # iOS + Android
-#   ./scripts/dev.sh ios       # só iOS Simulator
-#   ./scripts/dev.sh android   # só Pixel 9 Pro
-#   ./scripts/dev.sh all       # alias para sem-argumento
+#   ./scripts/dev.sh           # menu interativo (i / a)
+#   ./scripts/dev.sh ios       # direto no iOS Simulator
+#   ./scripts/dev.sh android   # direto no Pixel 9 Pro
 #
-# Aceita flags extras que são repassadas pro `flutter run`:
+# Flags extras vão pro `flutter run`:
 #   ./scripts/dev.sh ios --release
-#   ./scripts/dev.sh -- --dart-define=FOO=bar
+#   ./scripts/dev.sh android --dart-define=FOO=bar
 
 set -euo pipefail
 
-TARGET="${1:-all}"
+TARGET="${1:-}"
 case "$TARGET" in
-  ios|android|all) shift || true ;;
-  --*|"") TARGET="all" ;;
-  *) echo "Alvo desconhecido: $TARGET (use ios | android | all)"; exit 1 ;;
+  ios|android) shift || true ;;
+  "")
+    echo "Onde rodar?"
+    echo "  [i] iOS Simulator"
+    echo "  [a] Android (Pixel 9 Pro)"
+    printf "→ "
+    read -r choice
+    case "$choice" in
+      i|I|ios)     TARGET="ios" ;;
+      a|A|android) TARGET="android" ;;
+      *) echo "Cancelado."; exit 1 ;;
+    esac
+    ;;
+  *) echo "Alvo desconhecido: $TARGET (use ios | android)"; exit 1 ;;
 esac
 
 ANDROID_EMU="Pixel_9_Pro"
 
 wait_for_ios() {
   echo "→ aguardando iOS Simulator inicializar..."
-  # Espera até existir pelo menos 1 device booted
   until xcrun simctl list devices booted | grep -q "Booted"; do
     sleep 1
   done
@@ -33,15 +42,7 @@ wait_for_ios() {
 
 wait_for_android() {
   echo "→ aguardando emulador Android inicializar..."
-  # adb pode não estar no PATH; resolve via flutter
-  ADB="$(dirname "$(command -v flutter)")/../../bin/adb"
-  if ! command -v adb >/dev/null && [[ ! -x "$ADB" ]]; then
-    # fallback: pega o adb do Android SDK padrão
-    ADB="${ANDROID_HOME:-$HOME/Library/Android/sdk}/platform-tools/adb"
-  fi
-  command -v adb >/dev/null && ADB=adb
-
-  until "$ADB" shell getprop sys.boot_completed 2>/dev/null | grep -q "1"; do
+  until adb shell getprop sys.boot_completed 2>/dev/null | grep -q "1"; do
     sleep 2
   done
   echo "✓ Android emulator pronto"
@@ -67,24 +68,16 @@ boot_android() {
   fi
 }
 
-case "$TARGET" in
-  ios)     boot_ios ;;
-  android) boot_android ;;
-  all)     boot_ios; boot_android ;;
-esac
+if [[ "$TARGET" == "ios" ]]; then
+  boot_ios
+else
+  boot_android
+fi
 
-# Pequena pausa pra o `flutter devices` enxergar tudo
 sleep 2
 echo
 echo "→ devices visíveis:"
 flutter devices
 echo
 
-# -d all roda em todos os devices conectados simultaneamente
-if [[ "$TARGET" == "all" ]]; then
-  exec flutter run -d all "$@"
-elif [[ "$TARGET" == "ios" ]]; then
-  exec flutter run -d ios "$@"
-else
-  exec flutter run -d android "$@"
-fi
+exec flutter run -d "$TARGET" "$@"
