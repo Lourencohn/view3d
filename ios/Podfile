@@ -1,4 +1,4 @@
-platform :ios, '13.0'
+platform :ios, '15.0'
 
 # CocoaPods analytics sends network stats synchronously affecting flutter build latency.
 ENV['COCOAPODS_DISABLE_STATS'] = 'true'
@@ -27,7 +27,8 @@ require File.expand_path(File.join('packages', 'flutter_tools', 'bin', 'podhelpe
 flutter_ios_podfile_setup
 
 target 'Runner' do
-  use_frameworks!
+  use_frameworks! :linkage => :static
+  use_modular_headers!
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   target 'RunnerTests' do
@@ -39,7 +40,22 @@ post_install do |installer|
   installer.pods_project.targets.each do |target|
     flutter_additional_ios_build_settings(target)
     target.build_configurations.each do |config|
-      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '15.0'
+      config.build_settings['EXCLUDED_ARCHS[sdk=iphonesimulator*]'] = 'x86_64'
+    end
+
+    # Fix: pods do BoringSSL-GRPC/gRPC-Core injetam `-GCC_WARN_INHIBIT_ALL_WARNINGS`
+    # nos COMPILER_FLAGS de cada arquivo. O Clang interpreta como `-G` (não suportado
+    # no simulador arm64) + `CC_WARN_INHIBIT_ALL_WARNINGS` e o build falha com:
+    #   error: unsupported option '-G' for target 'arm64-apple-ios13.0-simulator'
+    # PBXAggregateTarget não tem source_build_phase — só PBXNativeTarget tem.
+    if target.respond_to?(:source_build_phase) && target.source_build_phase
+      target.source_build_phase.files.each do |file|
+        next unless file.settings && file.settings['COMPILER_FLAGS']
+        flags = file.settings['COMPILER_FLAGS'].split
+        flags.reject! { |flag| flag == '-GCC_WARN_INHIBIT_ALL_WARNINGS' }
+        file.settings['COMPILER_FLAGS'] = flags.join(' ')
+      end
     end
   end
 end

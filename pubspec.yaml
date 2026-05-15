@@ -12,10 +12,11 @@ dependencies:
     sdk: flutter
 
   # Firebase
-  firebase_core: ^2.27.0
-  firebase_auth: ^4.17.0
-  cloud_firestore: ^4.15.0
-  firebase_storage: ^11.6.0
+  firebase_core: ^4.9.0
+  firebase_auth: ^6.5.1
+  cloud_firestore: ^6.4.1
+  # firebase_storage: removido no MVP — Storage requer plano Blaze.
+  # GLBs ficam em URLs externas (modelviewer.dev no seed). Reativar quando subir Blaze.
 
   # 3D + AR
   model_viewer_plus: ^1.7.0
@@ -25,7 +26,7 @@ dependencies:
   go_router: ^13.2.0
 
   # Utilities
-  share_plus: ^9.0.0
+  share_plus: ^13.1.0
   qr_flutter: ^4.1.0
   cached_network_image: ^3.3.1
 

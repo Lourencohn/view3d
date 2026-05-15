@@ -46,19 +46,20 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'PLACEHOLDER_ANDROID_API_KEY',
-    appId: 'PLACEHOLDER_ANDROID_APP_ID',
-    messagingSenderId: 'PLACEHOLDER_SENDER_ID',
-    projectId: 'view3d-placeholder',
-    storageBucket: 'view3d-placeholder.appspot.com',
+    apiKey: 'AIzaSyDnO8tExcPSUrmnEVD_A80vEM5IqE1W12Q',
+    appId: '1:930876458445:android:69d2710a8209d4ba3b3084',
+    messagingSenderId: '930876458445',
+    projectId: 'view3d-caf85',
+    storageBucket: 'view3d-caf85.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'PLACEHOLDER_IOS_API_KEY',
-    appId: 'PLACEHOLDER_IOS_APP_ID',
-    messagingSenderId: 'PLACEHOLDER_SENDER_ID',
-    projectId: 'view3d-placeholder',
-    storageBucket: 'view3d-placeholder.appspot.com',
+    apiKey: 'AIzaSyAlXBsD1RVAzSs7pVNYTwixd4DCPB5wd_g',
+    appId: '1:930876458445:ios:847532e3bb5b6b763b3084',
+    messagingSenderId: '930876458445',
+    projectId: 'view3d-caf85',
+    storageBucket: 'view3d-caf85.firebasestorage.app',
     iosBundleId: 'app.showcas3d.view3d',
   );
+
 }

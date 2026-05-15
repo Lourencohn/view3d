@@ -80,4 +80,19 @@ echo "→ devices visíveis:"
 flutter devices
 echo
 
-exec flutter run -d "$TARGET" "$@"
+# Resolve device-id via flutter devices --machine (JSON) + jq.
+if [[ "$TARGET" == "ios" ]]; then
+  DEVICE_ID=$(flutter devices --machine 2>/dev/null \
+    | jq -r '.[] | select(.targetPlatform == "ios") | .id' | head -1)
+else
+  DEVICE_ID=$(flutter devices --machine 2>/dev/null \
+    | jq -r '.[] | select(.targetPlatform | startswith("android")) | .id' | head -1)
+fi
+
+if [[ -z "$DEVICE_ID" ]]; then
+  echo "✗ Não encontrei device $TARGET conectado."
+  exit 1
+fi
+
+echo "→ rodando em $TARGET (device id: $DEVICE_ID)"
+exec flutter run -d "$DEVICE_ID" "$@"
