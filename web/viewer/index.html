@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="theme-color" content="#FAF9F6">
+  <meta name="description" content="Visualize este produto em 3D e projete em AR no seu ambiente.">
+
+  <title>Carregando · View3D</title>
+
+  <!-- Open Graph (preview no WhatsApp / iMessage) -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="View3D">
+  <meta property="og:title" content="Carregando…" id="og-title">
+  <meta property="og:description" content="Veja em 3D e AR no navegador." id="og-desc">
+
+  <link rel="preconnect" href="https://firestore.googleapis.com">
+  <link rel="preconnect" href="https://firebasestorage.googleapis.com">
+
+  <!-- model-viewer -->
+  <script type="module"
+    src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
+  <link rel="stylesheet" href="viewer.css">
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">View<span class="num">3D</span></div>
+    <div class="from" id="from"></div>
+  </header>
+
+  <section class="stage">
+    <div class="chip chip-left" id="hintChip">↻ Arraste para girar</div>
+    <div class="chip chip-right" id="skuChip"></div>
+
+    <model-viewer
+      id="viewer"
+      camera-controls
+      auto-rotate
+      rotation-per-second="14deg"
+      ar
+      ar-modes="webxr scene-viewer quick-look"
+      ar-scale="auto"
+      shadow-intensity="1.1"
+      interaction-prompt="none"
+      loading="eager"
+      reveal="auto">
+    </model-viewer>
+
+    <div class="loading" id="loading">
+      <div class="spinner"></div>
+      <div>Carregando modelo</div>
+    </div>
+
+    <button class="ar-fab" id="arBtn" hidden>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 2L4 6v12l8 4 8-4V6l-8-4z"/>
+        <path d="M4 6l8 4 8-4M12 10v12"/>
+      </svg>
+      <span id="arBtnLabel">Ver no meu ambiente</span>
+    </button>
+  </section>
+
+  <main class="info">
+    <div class="left">
+      <div class="eyebrow" id="eyebrow"></div>
+      <h1 id="nome">Carregando…</h1>
+      <p class="desc" id="descricao"></p>
+
+      <div class="ar-tip">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 2L4 6v12l8 4 8-4V6l-8-4z"/>
+          <path d="M4 6l8 4 8-4M12 10v12"/>
+        </svg>
+        <div>
+          <b>Disponível em AR.</b>
+          Toque em "Ver no meu ambiente" no celular para projetar em tamanho real.
+        </div>
+      </div>
+    </div>
+
+    <aside class="right">
+      <div class="specs" id="specs">
+        <!-- preenchido via JS -->
+      </div>
+    </aside>
+  </main>
+
+  <div class="cta">
+    <button class="btn ghost" id="quoteBtn">Solicitar orçamento</button>
+    <button class="btn primary" id="arBtn2">Abrir em AR</button>
+  </div>
+
+  <footer class="foot">
+    <span id="footUrl"></span>
+    <span>powered by <a href="https://showcas3d.app" target="_blank" rel="noopener">View3D</a></span>
+  </footer>
+
+  <!-- Firebase + bootstrap (carrega o produto pelo id da URL) -->
+  <script type="module" src="viewer.js"></script>
+</body>
+</html>
