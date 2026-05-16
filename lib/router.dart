@@ -15,15 +15,10 @@ import 'shared/widgets/loading_widget.dart';
 
 /// Roteamento do app.
 ///
-/// Estrutura:
-///   /                   — splash (loading do auth state)
-///   /login              — fora do shell, sem bottom nav
-///   /catalogo           ─┐
-///   /compartilhados      │ dentro do HomeShell (bottom nav)
-///   /insights            │
-///   /conta              ─┘
-///   /produto/:id        — fora do shell (tela cheia)
-///   /produto/:id/qr     — fora do shell (tela cheia)
+/// Usa `StatefulShellRoute.indexedStack` para preservar o estado de cada aba
+/// (catálogo, compartilhados, insights, conta) ao trocar. A troca é instantânea
+/// e sem rebuild — IndexedStack mantém todas as abas montadas e só alterna
+/// qual é visível.
 final appRouterProvider = Provider<GoRouter>((ref) {
   final notifier = _RouterRefresh(ref);
 
@@ -52,22 +47,35 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/', builder: (_, __) => const _SplashScreen()),
       GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
 
-      // Shell — bottom nav persists across these
-      ShellRoute(
-        builder: (context, state, child) => HomeShell(child: child),
-        routes: [
-          GoRoute(
+      // Shell com IndexedStack — preserva estado por aba.
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            HomeShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(routes: [
+            GoRoute(
               path: '/catalogo',
-              builder: (_, __) => const CatalogoScreen()),
-          GoRoute(
+              builder: (_, __) => const CatalogoScreen(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
               path: '/compartilhados',
-              builder: (_, __) => const CompartilhadosScreen()),
-          GoRoute(
+              builder: (_, __) => const CompartilhadosScreen(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
               path: '/insights',
-              builder: (_, __) => const InsightsScreen()),
-          GoRoute(
+              builder: (_, __) => const InsightsScreen(),
+            ),
+          ]),
+          StatefulShellBranch(routes: [
+            GoRoute(
               path: '/conta',
-              builder: (_, __) => const ContaScreen()),
+              builder: (_, __) => const ContaScreen(),
+            ),
+          ]),
         ],
       ),
 

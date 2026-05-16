@@ -3,47 +3,38 @@ import 'package:go_router/go_router.dart';
 
 import '../../theme.dart';
 
-/// Shell com barra de navegação inferior. Envolve catálogo, compartilhados,
-/// insights e conta — usado via `ShellRoute` no go_router.
-///
-/// Cada item da nav corresponde a uma rota top-level. A rota corrente é
-/// derivada da URL — o usuário pode usar deep link direto para qualquer
-/// aba que a barra reflete corretamente.
+/// Shell com barra de navegação inferior. Envolve as abas catálogo,
+/// compartilhados, insights e conta usando `StatefulShellRoute.indexedStack` —
+/// todas as abas ficam montadas, a troca é instantânea (IndexedStack apenas
+/// alterna qual filha é visível), e o estado de cada aba é preservado entre
+/// trocas.
 class HomeShell extends StatelessWidget {
-  const HomeShell({super.key, required this.child});
-  final Widget child;
+  const HomeShell({super.key, required this.navigationShell});
+
+  final StatefulNavigationShell navigationShell;
 
   static const _tabs = <_HomeTab>[
-    _HomeTab(
-      path: '/catalogo',
-      label: 'Catálogo',
-      icon: Icons.grid_view_rounded,
-    ),
-    _HomeTab(
-      path: '/compartilhados',
-      label: 'Compartilhados',
-      icon: Icons.ios_share_rounded,
-    ),
-    _HomeTab(
-      path: '/insights',
-      label: 'Insights',
-      icon: Icons.insights_rounded,
-    ),
-    _HomeTab(
-      path: '/conta',
-      label: 'Conta',
-      icon: Icons.person_outline_rounded,
-    ),
+    _HomeTab(label: 'Catálogo', icon: Icons.grid_view_rounded),
+    _HomeTab(label: 'Compartilhados', icon: Icons.ios_share_rounded),
+    _HomeTab(label: 'Insights', icon: Icons.insights_rounded),
+    _HomeTab(label: 'Conta', icon: Icons.person_outline_rounded),
   ];
+
+  void _go(int index) {
+    // initialLocation: true volta pra raiz da branch ao re-tocar a mesma aba.
+    navigationShell.goBranch(
+      index,
+      initialLocation: index == navigationShell.currentIndex,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
-    final loc = GoRouterState.of(context).matchedLocation;
-    final activeIndex = _tabs.indexWhere((t) => loc.startsWith(t.path));
+    final activeIndex = navigationShell.currentIndex;
 
     return Scaffold(
       backgroundColor: AppTheme.bgApp,
-      body: child,
+      body: navigationShell,
       bottomNavigationBar: SafeArea(
         top: false,
         child: Container(
@@ -58,12 +49,10 @@ class HomeShell extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: _tabs.asMap().entries.map((e) {
               final i = e.key;
-              final tab = e.value;
-              final active = i == activeIndex;
               return _NavItem(
-                tab: tab,
-                active: active,
-                onTap: () => context.go(tab.path),
+                tab: e.value,
+                active: i == activeIndex,
+                onTap: () => _go(i),
               );
             }).toList(),
           ),
@@ -74,14 +63,9 @@ class HomeShell extends StatelessWidget {
 }
 
 class _HomeTab {
-  final String path;
   final String label;
   final IconData icon;
-  const _HomeTab({
-    required this.path,
-    required this.label,
-    required this.icon,
-  });
+  const _HomeTab({required this.label, required this.icon});
 }
 
 class _NavItem extends StatelessWidget {

@@ -7,7 +7,6 @@ import '../../models/produto.dart';
 import '../../shared/widgets/app_error_widget.dart';
 import '../../shared/widgets/loading_widget.dart';
 import '../../theme.dart';
-import '../auth/auth_provider.dart';
 import 'catalogo_provider.dart';
 
 class CatalogoScreen extends ConsumerWidget {
@@ -15,53 +14,14 @@ class CatalogoScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final auth = ref.watch(authStateProvider);
     final produtos = ref.watch(produtosFiltradosProvider);
     final filtro = ref.watch(categoriaFilterProvider);
-
-    final empresaId = (auth is AuthSignedIn) ? auth.usuario.empresaId : '';
 
     return SafeArea(
       bottom: false,
       child: Column(
         children: [
-          // Header
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'TROVATA · ${empresaId.toUpperCase()}',
-                  style: AppText.caption,
-                ),
-                const SizedBox(height: 4),
-                  RichText(
-                    text: const TextSpan(
-                      style: TextStyle(
-                        fontFamily: AppTheme.fontDisplay,
-                        fontSize: 38,
-                        height: 1.0,
-                        letterSpacing: -0.5,
-                        color: AppTheme.ink,
-                      ),
-                      children: [
-                        TextSpan(text: 'Catálogo '),
-                        TextSpan(
-                          text: 'digital',
-                          style: TextStyle(
-                            color: AppTheme.accent,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-              ],
-            ),
-          ),
-
-          // Filtros
+          // Filtros (sem header)
           _CategoriaFilters(active: filtro, ref: ref),
 
           // Grid
@@ -77,7 +37,7 @@ class CatalogoScreen extends ConsumerWidget {
                   return const _EmptyState();
                 }
                 return GridView.builder(
-                  padding: const EdgeInsets.fromLTRB(16, 4, 16, 24),
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
                   gridDelegate:
                       const SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: 2,

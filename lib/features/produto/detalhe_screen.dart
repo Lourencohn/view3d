@@ -40,12 +40,29 @@ class DetalheScreen extends ConsumerWidget {
   }
 }
 
-class _DetalheView extends StatelessWidget {
+class _DetalheView extends StatefulWidget {
   const _DetalheView({required this.produto});
   final Produto produto;
 
   @override
+  State<_DetalheView> createState() => _DetalheViewState();
+}
+
+class _DetalheViewState extends State<_DetalheView> {
+  bool _loading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Loading visual fixo — model_viewer_plus não expõe progresso pro Dart.
+    Future.delayed(const Duration(milliseconds: 2500), () {
+      if (mounted) setState(() => _loading = false);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final produto = widget.produto;
     return SafeArea(
       bottom: false,
       child: Column(
@@ -80,6 +97,14 @@ class _DetalheView extends StatelessWidget {
                     loading: Loading.eager,
                   ),
                 ),
+                Positioned.fill(
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: _loading
+                        ? const _LoadingOverlay()
+                        : const SizedBox.shrink(),
+                  ),
+                ),
                 // Top bar
                 Positioned(
                   left: 0,
@@ -95,6 +120,37 @@ class _DetalheView extends StatelessWidget {
           Expanded(
             flex: 6,
             child: _InfoBlock(produto: produto),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LoadingOverlay extends StatelessWidget {
+  const _LoadingOverlay();
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white.withOpacity(0.55),
+      alignment: Alignment.center,
+      child: const Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+          SizedBox(height: 10),
+          Text(
+            'Carregando 3D…',
+            style: TextStyle(
+              fontSize: 12,
+              color: AppTheme.ink2,
+              letterSpacing: 0.4,
+            ),
           ),
         ],
       ),
