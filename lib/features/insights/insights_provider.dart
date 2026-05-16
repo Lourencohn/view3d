@@ -3,10 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/compartilhamento.dart';
 import '../auth/auth_provider.dart';
 
-/// Métricas agregadas dos últimos 7 dias.
-///
-/// TODO: substituir pelo doc gerado por Cloud Function em
-/// `insights/{empresaId}` (snapshot diário) — por enquanto mock.
 final insightsProvider = FutureProvider<InsightsSnapshot>((ref) async {
   final auth = ref.watch(authStateProvider);
   if (auth is! AuthSignedIn) {

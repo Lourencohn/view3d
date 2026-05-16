@@ -267,6 +267,7 @@ node scripts/seed.mjs
 - **Cores via `AppTheme`.** Não use `Color(0xFF...)` solto.
 - **Tipografia.** Títulos grandes usam `AppTheme.fontDisplay` (serif).
 - **`flutter analyze` precisa passar.** Lints estritos em `analysis_options.yaml`.
+- **Código sem comentários.** Nada de `///` (dartdoc), `/* */` (blocos) ou `//` de linha — incluindo "headers" curtos como `// Header`, `// Stats grid`, divisórias `// ─────`, `// TODO`, e descrições de seção. Nomes claros e código óbvio substituem o comentário. Exceções aceitas SOMENTE quando o motivo não é deduzível do código (constraint oculta, workaround específico de bug, invariante sutil) — neste caso, uma única linha curta. Para tudo o mais, prefira o nome certo, uma função extraída, ou nada.
 
 ## 10. AR — checklist por plataforma
 

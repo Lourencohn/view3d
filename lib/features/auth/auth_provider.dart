@@ -3,17 +3,14 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../models/usuario.dart';
 
-/// Cliente Supabase compartilhado.
 final supabaseClientProvider = Provider<SupabaseClient>((ref) {
   return Supabase.instance.client;
 });
 
-/// Stream interno do Supabase Auth (eventos signIn/signOut/refresh).
 final _authChangesProvider = StreamProvider<AuthState>((ref) {
   return ref.watch(supabaseClientProvider).auth.onAuthStateChange;
 });
 
-/// Sessão atual — começa pelo cache (currentSession) e reage ao stream.
 final sessionProvider = Provider<Session?>((ref) {
   final stream = ref.watch(_authChangesProvider);
   return stream.maybeWhen(
@@ -22,7 +19,6 @@ final sessionProvider = Provider<Session?>((ref) {
   );
 });
 
-/// Perfil do usuário logado — `public.profiles` linkado a `auth.users`.
 final usuarioProvider = FutureProvider<Usuario?>((ref) async {
   final session = ref.watch(sessionProvider);
   if (session == null) return null;
@@ -42,7 +38,6 @@ final usuarioProvider = FutureProvider<Usuario?>((ref) async {
   });
 });
 
-/// Estado consolidado de auth — consumido pelo router e telas.
 sealed class AppAuthState {
   const AppAuthState();
 }
@@ -77,9 +72,6 @@ final authStateProvider = Provider<AppAuthState>((ref) {
     error: (_, __) => const AuthSignedOut(),
     data: (u) {
       if (u == null) {
-        // Sessão válida mas sem profile em public.profiles — desloga
-        // pra evitar loop de loading. Rode o SQL de seed (CLAUDE.md §4.4)
-        // ou crie o profile manualmente no Table Editor.
         Future(() => ref.read(supabaseClientProvider).auth.signOut());
         return const AuthSignedOut();
       }

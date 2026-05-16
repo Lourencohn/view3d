@@ -1,4 +1,3 @@
-/// Produto 3D — metadados + URL pública do GLB.
 class Produto {
   final String id;
   final String nome;
@@ -6,13 +5,10 @@ class Produto {
   final String categoria;
   final String empresaId;
 
-  /// URL pública do arquivo .glb (Supabase Storage ou externo).
   final String glbUrl;
 
-  /// URL pública da página do viewer (compartilhável).
   final String viewerUrl;
 
-  /// Opcional — URL de thumbnail PNG/JPG. Se nulo, a UI mostra placeholder.
   final String? thumbUrl;
 
   final bool ativo;

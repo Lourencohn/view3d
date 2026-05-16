@@ -1,4 +1,3 @@
-/// Empresa (tenant). Toda query de produtos filtra por [id] da empresa.
 class Empresa {
   final String id;
   final String nome;

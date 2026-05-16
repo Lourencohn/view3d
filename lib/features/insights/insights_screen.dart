@@ -43,7 +43,6 @@ class _Body extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       children: [
-        // Header
         Padding(
           padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
           child: Column(
@@ -56,11 +55,9 @@ class _Body extends StatelessWidget {
           ),
         ),
 
-        // Hero — total views + sparkbars
         _HeroCard(snap: snap),
         const SizedBox(height: 10),
 
-        // Stats grid
         Row(
           children: [
             Expanded(
@@ -586,7 +583,6 @@ class _CanaisCard extends StatelessWidget {
                 fontWeight: FontWeight.w500,
               )),
           const SizedBox(height: 10),
-          // Stacked horizontal bar
           ClipRRect(
             borderRadius: BorderRadius.circular(6),
             child: SizedBox(

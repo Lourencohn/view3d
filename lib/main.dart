@@ -11,8 +11,6 @@ import 'theme.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Locks vertical orientation — o viewer 3D já reage bem ao toque/drag,
-  // mas o app principal foi pensado para retrato.
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
   ]);

@@ -36,7 +36,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
             _emailCtrl.text,
             _pwdCtrl.text,
           );
-      // Router observa o authState e redireciona para /catalogo.
     } on AuthFailure catch (e) {
       setState(() => _error = e.message);
     } catch (e) {
@@ -61,7 +60,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     const Spacer(),
-              // Logo Trovata
               Center(
                 child: Image.asset(
                   'assets/images/trovata-logo.png',

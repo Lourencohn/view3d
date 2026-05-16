@@ -25,8 +25,6 @@ extension CanalX on Canal {
       };
 }
 
-/// Evento de compartilhamento — persistido em `compartilhamentos`
-/// (por enquanto a tela usa mock; trocar quando o ShareSheet gravar de fato).
 class Compartilhamento {
   final String id;
   final String produtoId;
@@ -86,7 +84,6 @@ class Compartilhamento {
       };
 }
 
-/// Snapshot agregado dos últimos 7 dias para a tela "Insights" (mock).
 class InsightsSnapshot {
   final int views7d;
   final double views7dDelta;

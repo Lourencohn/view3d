@@ -1,30 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
-/// Sistema visual do TROVATA — corporate B2B com toque editorial.
-/// Azul primário sobre neutros frios; vermelho como acento de marca.
-///
-/// Os tokens "ink/bg/line" são **getters** que respondem ao modo de tema
-/// global ([AppTheme.isDark]). Brand colors (azul/vermelho/verde) ficam
-/// estáveis em qualquer modo para manter a identidade da marca.
-///
-/// Por consequência, `const TextStyle(color: AppTheme.ink)` não compila —
-/// use `TextStyle(color: AppTheme.ink)` sem `const` quando referenciar
-/// cores dependentes de tema.
 class AppTheme {
   AppTheme._();
 
-  // ─────────────── Estado do tema ───────────────
   static bool _isDark = false;
   static bool get isDark => _isDark;
 
-  /// Atualiza o flag global. Chamado pelo `themeModeProvider` antes de
-  /// reconstruir a árvore (via `notifyListeners` / rebuild do MaterialApp).
   static void setDark(bool value) {
     _isDark = value;
   }
 
-  // ─────────────── Brand (não muda) ───────────────
   static const accent = Color(0xFF1976D2);
   static const accentDeep = Color(0xFF1565C0);
   static const accentTint = Color(0xFFE3F2FD);
@@ -39,7 +25,6 @@ class AppTheme {
   static const success = brandGreen;
   static const warning = Color(0xFFD4A017);
 
-  // ─────────────── Neutros (claro) ───────────────
   static const _inkLight = Color(0xFF0F172A);
   static const _ink2Light = Color(0xFF334155);
   static const _ink3Light = Color(0xFF64748B);
@@ -50,7 +35,6 @@ class AppTheme {
   static const _lineLight = Color(0xFFE2E8F0);
   static const _lineStrongLight = Color(0xFFCBD5E1);
 
-  // ─────────────── Neutros (escuro) ───────────────
   static const _inkDark = Color(0xFFF1F5F9);
   static const _ink2Dark = Color(0xFFCBD5E1);
   static const _ink3Dark = Color(0xFF94A3B8);
@@ -61,7 +45,6 @@ class AppTheme {
   static const _lineDark = Color(0xFF1F2A3D);
   static const _lineStrongDark = Color(0xFF334155);
 
-  // ─────────────── Getters (resolvem o token atual) ───────────────
   static Color get ink => _isDark ? _inkDark : _inkLight;
   static Color get ink2 => _isDark ? _ink2Dark : _ink2Light;
   static Color get ink3 => _isDark ? _ink3Dark : _ink3Light;
@@ -72,10 +55,8 @@ class AppTheme {
   static Color get line => _isDark ? _lineDark : _lineLight;
   static Color get lineStrong => _isDark ? _lineStrongDark : _lineStrongLight;
 
-  // Brilho do texto no botão preto (no claro, tinta clara; no escuro, ink-deep)
   static Color get onInk => _isDark ? _bgAppLight : _bgAppLight;
 
-  /// Heading font (Google Fonts: Instrument Serif).
   static const fontDisplay = 'serif';
   static const fontSans = 'system-ui';
 
@@ -214,10 +195,6 @@ class AppTheme {
   }
 }
 
-/// Estilos tipográficos reutilizáveis. Como os campos usam getters de
-/// cor de [AppTheme] (não são `const`), estes membros também são getters
-/// estáticos. Cada acesso devolve um `TextStyle` resolvido para o tema
-/// vigente.
 class AppText {
   AppText._();
 

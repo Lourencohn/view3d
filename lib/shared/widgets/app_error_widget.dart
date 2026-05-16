@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 import '../../theme.dart';
 
-/// Estado de erro reutilizável. Nomeado `AppErrorWidget` para não conflitar
-/// com `ErrorWidget` do framework.
 class AppErrorWidget extends StatelessWidget {
   const AppErrorWidget({super.key, required this.message, this.onRetry});
   final String message;

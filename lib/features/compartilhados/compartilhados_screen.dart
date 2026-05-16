@@ -29,7 +29,6 @@ class CompartilhadosScreen extends ConsumerWidget {
       bottom: false,
       child: Column(
         children: [
-          // Header
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
             child: Column(
@@ -52,10 +51,8 @@ class CompartilhadosScreen extends ConsumerWidget {
             ),
           ),
 
-          // Filter chips
           _CanalChips(active: filtro, ref: ref),
 
-          // List
           Expanded(
             child: compartilhados.when(
               loading: () => const LoadingWidget(),
@@ -338,11 +335,6 @@ class _ShareRow extends StatelessWidget {
   }
 }
 
-/// Mini-thumb à esquerda de cada linha de compartilhamento. Aparece em
-/// lista que pode crescer — então NÃO usa `ModelViewer` (cada instância é
-/// uma WebView, custa memória demais quando há vários itens). Quando o
-/// produto tem `thumb_url`, mostra a imagem cacheada; caso contrário,
-/// um quadrado tingido com a inicial em serifa.
 class _MiniThumb extends StatelessWidget {
   const _MiniThumb({this.produto});
   final Produto? produto;
@@ -388,7 +380,6 @@ class _MiniThumb extends StatelessWidget {
       nome.isNotEmpty ? nome.characters.first.toUpperCase() : '?';
 
   Color _tintFor(String categoria) {
-    // Tintura suave por categoria — ajuda o olho a varrer a lista.
     switch (categoria) {
       case 'Móveis':
         return AppTheme.accentTint;

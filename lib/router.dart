@@ -13,12 +13,6 @@ import 'features/produto/detalhe_screen.dart';
 import 'features/produto/qr_screen.dart';
 import 'shared/widgets/loading_widget.dart';
 
-/// Roteamento do app.
-///
-/// Usa `StatefulShellRoute.indexedStack` para preservar o estado de cada aba
-/// (catálogo, compartilhados, insights, conta) ao trocar. A troca é instantânea
-/// e sem rebuild — IndexedStack mantém todas as abas montadas e só alterna
-/// qual é visível.
 final appRouterProvider = Provider<GoRouter>((ref) {
   final notifier = _RouterRefresh(ref);
 
@@ -47,7 +41,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/', builder: (_, __) => const _SplashScreen()),
       GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
 
-      // Shell com IndexedStack — preserva estado por aba.
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             HomeShell(navigationShell: navigationShell),
@@ -79,7 +72,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
 
-      // Fora do shell — telas full-screen
       GoRoute(
         path: '/produto/:id',
         builder: (_, state) => DetalheScreen(

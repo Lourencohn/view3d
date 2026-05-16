@@ -54,7 +54,6 @@ class _DetalheViewState extends State<_DetalheView> {
   @override
   void initState() {
     super.initState();
-    // Loading visual fixo — model_viewer_plus não expõe progresso pro Dart.
     Future.delayed(const Duration(milliseconds: 2500), () {
       if (mounted) setState(() => _loading = false);
     });
@@ -67,7 +66,6 @@ class _DetalheViewState extends State<_DetalheView> {
       bottom: false,
       child: Column(
         children: [
-          // 3D Viewer
           Expanded(
             flex: 5,
             child: Stack(
@@ -107,7 +105,6 @@ class _DetalheViewState extends State<_DetalheView> {
                         : const SizedBox.shrink(),
                   ),
                 ),
-                // Top bar
                 Positioned(
                   left: 0,
                   right: 0,
@@ -118,7 +115,6 @@ class _DetalheViewState extends State<_DetalheView> {
             ),
           ),
 
-          // Info
           Expanded(
             flex: 6,
             child: _InfoBlock(produto: produto),

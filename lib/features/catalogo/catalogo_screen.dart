@@ -197,10 +197,6 @@ class _ProdutoCard extends StatelessWidget {
   }
 }
 
-/// Miniatura do produto. Usa `thumb_url` (imagem 2D) quando existir.
-/// Caso contrário, renderiza inline o próprio `glb` via [ModelViewer]
-/// com auto-rotação — assim cada card mostra o produto 3D real, sem
-/// dependência de assets pré-renderizados.
 class ProdutoThumb extends StatelessWidget {
   const ProdutoThumb({
     super.key,
@@ -219,8 +215,6 @@ class ProdutoThumb extends StatelessWidget {
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Palco gradiente — dá contraste tanto pra imagem PNG transparente
-        // quanto pro WebGL do model-viewer.
         Container(
           decoration: BoxDecoration(
             gradient: RadialGradient(
@@ -270,8 +264,6 @@ class _GlbInlineState extends State<_GlbInline> {
   @override
   void initState() {
     super.initState();
-    // model_viewer_plus não expõe progresso pro Dart — damos um beat
-    // pra exibir o pôster antes do WebView "piscar".
     Future.delayed(const Duration(milliseconds: 1200), () {
       if (mounted) setState(() => _ready = true);
     });
@@ -282,7 +274,6 @@ class _GlbInlineState extends State<_GlbInline> {
     return Stack(
       fit: StackFit.expand,
       children: [
-        // Pôster de inicial — fica visível durante o load do WebView.
         _PosterInitial(produto: widget.produto),
         AnimatedOpacity(
           duration: const Duration(milliseconds: 350),

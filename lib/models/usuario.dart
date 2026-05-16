@@ -7,7 +7,6 @@ Papel _papelFromString(String? s) {
   );
 }
 
-/// Usuário autenticado. Vem da junção entre `auth.users` e `public.profiles`.
 class Usuario {
   final String uid;
   final String nome;
@@ -45,7 +44,6 @@ class Usuario {
         'papel': papel.name,
       };
 
-  /// Iniciais para avatar (até 2 letras).
   String get iniciais {
     final parts = nome.trim().split(RegExp(r'\s+'));
     if (parts.isEmpty || parts.first.isEmpty) return '?';

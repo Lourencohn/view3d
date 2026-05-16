@@ -25,7 +25,6 @@ class ContaScreen extends ConsumerWidget {
       bottom: false,
       child: ListView(
         children: [
-          // Header
           Padding(
             padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
             child: Column(
@@ -38,13 +37,11 @@ class ContaScreen extends ConsumerWidget {
             ),
           ),
 
-          // Profile card
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
             child: _ProfileCard(user: user),
           ),
 
-          // Conta section
           _Section(title: 'Conta', children: [
             _Row(
               icon: Icons.person_outline_rounded,
@@ -69,7 +66,6 @@ class ContaScreen extends ConsumerWidget {
             ),
           ]),
 
-          // Preferências
           _Section(title: 'Preferências', children: [
             const _Row(
               icon: Icons.notifications_none_rounded,
@@ -97,7 +93,6 @@ class ContaScreen extends ConsumerWidget {
             ),
           ]),
 
-          // Sobre
           _Section(title: 'Sobre', children: [
             const _Row(
               icon: Icons.info_outline_rounded,
@@ -115,7 +110,6 @@ class ContaScreen extends ConsumerWidget {
             ),
           ]),
 
-          // Sair
           Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
             child: Material(
@@ -171,7 +165,6 @@ class ContaScreen extends ConsumerWidget {
             ),
           ),
 
-          // Version footer
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 18),
             child: Center(

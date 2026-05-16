@@ -6,7 +6,6 @@ import 'package:share_plus/share_plus.dart';
 import '../../models/produto.dart';
 import '../../theme.dart';
 
-/// Bottom sheet de compartilhamento — chamado da tela de Detalhe.
 class ShareSheet extends StatelessWidget {
   const ShareSheet({super.key, required this.produto});
   final Produto produto;
@@ -44,7 +43,6 @@ class ShareSheet extends StatelessWidget {
             ),
             const SizedBox(height: 14),
 
-            // Header
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(
@@ -99,7 +97,6 @@ class ShareSheet extends StatelessWidget {
 
             const SizedBox(height: 14),
 
-            // Link row
             Container(
               padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
               decoration: BoxDecoration(
@@ -152,7 +149,6 @@ class ShareSheet extends StatelessWidget {
 
             const SizedBox(height: 18),
 
-            // Quick share grid
             Row(
               children: [
                 Expanded(
@@ -199,8 +195,6 @@ class ShareSheet extends StatelessWidget {
   }
 
   void _share(BuildContext ctx, Produto p, String channel) async {
-    // share_plus mostra a sheet nativa — o "channel" aqui é apenas
-    // semântico para futuras integrações (deep link de WA, mailto:, etc.)
     final text = 'Veja em 3D: ${p.nome}\n${p.viewerUrl}';
     await Share.share(text, subject: p.nome);
     if (ctx.mounted) Navigator.of(ctx).pop();

@@ -3,11 +3,6 @@ import 'package:go_router/go_router.dart';
 
 import '../../theme.dart';
 
-/// Shell com barra de navegação inferior. Envolve as abas catálogo,
-/// compartilhados, insights e conta usando `StatefulShellRoute.indexedStack` —
-/// todas as abas ficam montadas, a troca é instantânea (IndexedStack apenas
-/// alterna qual filha é visível), e o estado de cada aba é preservado entre
-/// trocas.
 class HomeShell extends StatelessWidget {
   const HomeShell({super.key, required this.navigationShell});
 
@@ -21,7 +16,6 @@ class HomeShell extends StatelessWidget {
   ];
 
   void _go(int index) {
-    // initialLocation: true volta pra raiz da branch ao re-tocar a mesma aba.
     navigationShell.goBranch(
       index,
       initialLocation: index == navigationShell.currentIndex,

@@ -6,9 +6,6 @@ import '../theme.dart';
 
 const _kThemeModeKey = 'trovata.themeMode';
 
-/// Estado global de tema. Persiste a escolha do usuário em
-/// SharedPreferences e mantém [AppTheme.setDark] em sincronia para que
-/// getters como `AppTheme.ink` resolvam o token certo no próximo build.
 class ThemeModeNotifier extends StateNotifier<ThemeMode> {
   ThemeModeNotifier() : super(ThemeMode.light) {
     _load();

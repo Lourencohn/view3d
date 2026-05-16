@@ -21,8 +21,6 @@ class _QrScreenState extends ConsumerState<QrScreen> {
   @override
   void initState() {
     super.initState();
-    // Copia o link para o clipboard automaticamente — comportamento
-    // obrigatório segundo a spec.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final p = ref.read(produtoByIdProvider(widget.produtoId)).asData?.value;
       if (p != null) {
@@ -70,7 +68,6 @@ class _QrScreenState extends ConsumerState<QrScreen> {
                   Text(p.nome, style: AppText.titleXL),
                   const SizedBox(height: 24),
 
-                  // Card com o QR
                   Container(
                     decoration: BoxDecoration(
                       color: AppTheme.bgCard,
@@ -117,7 +114,6 @@ class _QrScreenState extends ConsumerState<QrScreen> {
                           data: p.viewerUrl,
                           size: 240,
                           backgroundColor: Colors.white,
-                          // QR sempre em preto puro pra contraste no scan.
                           eyeStyle: const QrEyeStyle(
                             eyeShape: QrEyeShape.square,
                             color: Color(0xFF0F172A),

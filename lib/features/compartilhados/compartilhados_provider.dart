@@ -3,28 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/compartilhamento.dart';
 import '../auth/auth_provider.dart';
 
-/// Lista de compartilhamentos do vendedor logado.
-///
-/// TODO: trocar pelo stream real:
-/// ```
-/// db.collection('compartilhamentos')
-///   .where('empresaId', isEqualTo: usuario.empresaId)
-///   .where('uid', isEqualTo: usuario.uid)
-///   .orderBy('dataHora', descending: true)
-///   .snapshots()
-/// ```
-/// Por enquanto retorna dados mock — ver `_mockShares()`.
 final compartilhamentosProvider =
     FutureProvider<List<Compartilhamento>>((ref) async {
   final auth = ref.watch(authStateProvider);
   if (auth is! AuthSignedIn) return const [];
 
-  // Simula latência de rede leve para a UI mostrar loading uma vez.
   await Future<void>.delayed(const Duration(milliseconds: 120));
   return _mockShares(uid: auth.usuario.uid, empresaId: auth.usuario.empresaId);
 });
 
-/// Filtro por canal (null = todos).
 final canalFilterProvider = StateProvider<Canal?>((ref) => null);
 
 final compartilhamentosFiltradosProvider =
@@ -37,9 +24,6 @@ final compartilhamentosFiltradosProvider =
   });
 });
 
-// ─────────────────────────────────────────────────────────
-// Mock — substituir por Firestore quando coleção existir
-// ─────────────────────────────────────────────────────────
 List<Compartilhamento> _mockShares({
   required String uid,
   required String empresaId,
