@@ -79,7 +79,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               const SizedBox(height: 18),
               Text(
                 'Catálogo digital e vendas B2B. '
-                'Compartilhe modelos 3D interativos com qualquer comprador — sem instalar app.',
+                'Compartilhe modelos 3D interativos com qualquer comprador, sem instalar app.',
                 textAlign: TextAlign.center,
                 style: AppText.body,
               ),

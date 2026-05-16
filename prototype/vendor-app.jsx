@@ -100,7 +100,7 @@ function LoginScreen({ onLogin }) {
              }}/>
         <div className="login-tag" style={{ marginTop: 24 }}>
           <b>Catálogo digital e vendas B2B.</b><br/>
-          Compartilhe modelos 3D interativos com qualquer comprador, em qualquer lugar — sem instalar app.
+          Compartilhe modelos 3D interativos com qualquer comprador, em qualquer lugar, sem instalar app.
         </div>
       </div>
 

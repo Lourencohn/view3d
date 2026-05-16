@@ -53,7 +53,7 @@ function App() {
 
           <div className="brand-sub">
             <b>Vendedor</b> abre o app, escolhe um produto e compartilha o link.
-            <br/>O <b>comprador</b> recebe e visualiza em 3D e AR — sem instalar nada.
+            <br/>O <b>comprador</b> recebe e visualiza em 3D e AR, sem instalar nada.
           </div>
         </header>
 
@@ -94,7 +94,7 @@ function App() {
           letterSpacing: '0.06em', textTransform: 'uppercase',
           fontWeight: 500,
         }}>
-          <div>TROVATA · Catálogo Digital e Vendas B2B · v0.1 — Flutter · Firebase · model-viewer</div>
+          <div>TROVATA · Catálogo Digital e Vendas B2B · v0.1 · Flutter</div>
           <div>{USER.nome} · {USER.empresa} · {USER.cidade}</div>
         </footer>
       </div>
