@@ -21,9 +21,9 @@ class ShareSheet extends StatelessWidget {
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       child: Container(
-        decoration: const BoxDecoration(
+        decoration: BoxDecoration(
           color: AppTheme.bgCard,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
         ),
         padding: EdgeInsets.fromLTRB(
           14,
@@ -76,13 +76,14 @@ class ShareSheet extends StatelessWidget {
                           'Compartilhar ${produto.nome}',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w500,
                             letterSpacing: -0.1,
+                            color: AppTheme.ink,
                           ),
                         ),
-                        const Text(
+                        Text(
                           'Comprador acessa pelo navegador, sem app',
                           style: TextStyle(
                             fontSize: 12,
@@ -107,7 +108,7 @@ class ShareSheet extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  const Icon(Icons.link_rounded,
+                  Icon(Icons.link_rounded,
                       size: 18, color: AppTheme.ink3),
                   const SizedBox(width: 8),
                   Expanded(
@@ -240,7 +241,7 @@ class _ShareTile extends StatelessWidget {
             ),
             const SizedBox(height: 6),
             Text(label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 11,
                   color: AppTheme.ink2,
                   fontWeight: FontWeight.w500,

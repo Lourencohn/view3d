@@ -79,7 +79,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 18),
-              const Text(
+              Text(
                 'Catálogo digital e vendas B2B. '
                 'Compartilhe modelos 3D interativos com qualquer comprador — sem instalar app.',
                 textAlign: TextAlign.center,
@@ -145,7 +145,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       child: ElevatedButton(
                         onPressed: _loading ? null : _submit,
                         child: _loading
-                            ? const SizedBox(
+                            ? SizedBox(
                                 width: 22,
                                 height: 22,
                                 child: CircularProgressIndicator(
@@ -157,7 +157,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                       ),
                     ),
                     const SizedBox(height: 14),
-                    const Center(
+                    Center(
                       child: Text(
                         'Esqueci a senha  ·  Acessar via SSO',
                         style: TextStyle(fontSize: 12, color: AppTheme.ink3),

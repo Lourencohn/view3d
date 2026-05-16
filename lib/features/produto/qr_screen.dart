@@ -64,7 +64,7 @@ class _QrScreenState extends ConsumerState<QrScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text('QR · APONTE A CÂMERA',
+                  Text('QR · APONTE A CÂMERA',
                       style: AppText.caption),
                   const SizedBox(height: 6),
                   Text(p.nome, style: AppText.titleXL),
@@ -90,14 +90,14 @@ class _QrScreenState extends ConsumerState<QrScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             RichText(
-                              text: const TextSpan(
+                              text: TextSpan(
                                 style: TextStyle(
                                   fontFamily: AppTheme.fontDisplay,
                                   fontSize: 18,
                                   fontStyle: FontStyle.italic,
                                   color: AppTheme.ink,
                                 ),
-                                children: [
+                                children: const [
                                   TextSpan(text: 'View'),
                                   TextSpan(
                                     text: '3D',
@@ -117,21 +117,22 @@ class _QrScreenState extends ConsumerState<QrScreen> {
                           data: p.viewerUrl,
                           size: 240,
                           backgroundColor: Colors.white,
+                          // QR sempre em preto puro pra contraste no scan.
                           eyeStyle: const QrEyeStyle(
                             eyeShape: QrEyeShape.square,
-                            color: AppTheme.ink,
+                            color: Color(0xFF0F172A),
                           ),
                           dataModuleStyle: const QrDataModuleStyle(
                             dataModuleShape: QrDataModuleShape.square,
-                            color: AppTheme.ink,
+                            color: Color(0xFF0F172A),
                           ),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           [p.categoria, p.cor]
-                              .where((s) => s != null && s!.isNotEmpty)
+                              .where((s) => s != null && s.isNotEmpty)
                               .join(' · '),
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontSize: 13,
                             color: AppTheme.ink2,
                             fontWeight: FontWeight.w500,
@@ -162,8 +163,8 @@ class _QrScreenState extends ConsumerState<QrScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 20),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Text(
                       'Funciona em iOS, Android e desktop. Sem instalar app.',
                       textAlign: TextAlign.center,

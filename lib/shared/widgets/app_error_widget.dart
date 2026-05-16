@@ -32,7 +32,7 @@ class AppErrorWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 14),
-            const Text(
+            Text(
               'Algo deu errado',
               style: TextStyle(
                 fontSize: 17,
@@ -44,7 +44,7 @@ class AppErrorWidget extends StatelessWidget {
             Text(
               message,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 13,
                 color: AppTheme.ink2,
                 height: 1.5,

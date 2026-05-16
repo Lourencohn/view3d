@@ -74,11 +74,13 @@ class _DetalheViewState extends State<_DetalheView> {
               children: [
                 Positioned.fill(
                   child: Container(
-                    decoration: const BoxDecoration(
+                    decoration: BoxDecoration(
                       gradient: RadialGradient(
-                        center: Alignment(0, -0.1),
+                        center: const Alignment(0, -0.1),
                         radius: 1.0,
-                        colors: [Colors.white, AppTheme.bgMuted],
+                        colors: AppTheme.isDark
+                            ? [AppTheme.bgCard, AppTheme.bgApp]
+                            : [Colors.white, AppTheme.bgMuted],
                       ),
                     ),
                   ),
@@ -132,18 +134,20 @@ class _LoadingOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final overlay =
+        AppTheme.isDark ? AppTheme.bgApp.withOpacity(0.55) : Colors.white.withOpacity(0.55);
     return Container(
-      color: Colors.white.withOpacity(0.55),
+      color: overlay,
       alignment: Alignment.center,
-      child: const Column(
+      child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          SizedBox(
+          const SizedBox(
             width: 28,
             height: 28,
             child: CircularProgressIndicator(strokeWidth: 2),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: 10),
           Text(
             'Carregando 3D…',
             style: TextStyle(
@@ -199,8 +203,11 @@ class _IconCircle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final bg = AppTheme.isDark
+        ? AppTheme.bgCard.withOpacity(0.78)
+        : Colors.white.withOpacity(0.78);
     return Material(
-      color: Colors.white.withOpacity(0.78),
+      color: bg,
       shape: const CircleBorder(),
       child: InkWell(
         customBorder: const CircleBorder(),
@@ -222,9 +229,9 @@ class _InfoBlock extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppTheme.bgApp,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       ),
       child: Column(
         children: [
@@ -303,7 +310,7 @@ class _SpecsGrid extends StatelessWidget {
                 children: [
                   Text(
                     e[0]!.toUpperCase(),
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 10,
                       color: AppTheme.ink3,
                       letterSpacing: 1.0,
@@ -338,7 +345,7 @@ class _StickyActions extends StatelessWidget {
   Widget build(BuildContext context) {
     final bottomPad = MediaQuery.of(context).padding.bottom;
     return Container(
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
         color: AppTheme.bgApp,
         border: Border(top: BorderSide(color: AppTheme.line, width: 0.5)),
       ),

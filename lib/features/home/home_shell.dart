@@ -38,7 +38,7 @@ class HomeShell extends StatelessWidget {
       bottomNavigationBar: SafeArea(
         top: false,
         child: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: AppTheme.bgApp,
             border: Border(
               top: BorderSide(color: AppTheme.line, width: 0.5),

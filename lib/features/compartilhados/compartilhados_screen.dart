@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -34,9 +35,9 @@ class CompartilhadosScreen extends ConsumerWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text('ATIVIDADE', style: AppText.caption),
+                Text('ATIVIDADE', style: AppText.caption),
                 const SizedBox(height: 4),
-                const Text('Compartilhados', style: AppText.titleXL),
+                Text('Compartilhados', style: AppText.titleXL),
                 const SizedBox(height: 10),
                 Row(
                   children: [
@@ -152,7 +153,7 @@ class _Stat extends StatelessWidget {
               fontFeatures: const [FontFeature.tabularFigures()],
             )),
         Text(label,
-            style: const TextStyle(fontSize: 11, color: AppTheme.ink3)),
+            style: TextStyle(fontSize: 11, color: AppTheme.ink3)),
       ],
     );
   }
@@ -247,7 +248,7 @@ class _ShareRow extends StatelessWidget {
                         produto?.nome ?? 'Produto removido',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                           letterSpacing: -0.1,
@@ -273,7 +274,7 @@ class _ShareRow extends StatelessWidget {
                                   share.canal.label,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
                                 color: AppTheme.ink3,
                               ),
@@ -286,7 +287,7 @@ class _ShareRow extends StatelessWidget {
                           const SizedBox(width: 6),
                           Text(
                             _relTime(share.dataHora),
-                            style: const TextStyle(
+                            style: TextStyle(
                               fontSize: 12,
                               color: AppTheme.ink3,
                             ),
@@ -303,14 +304,14 @@ class _ShareRow extends StatelessWidget {
                   children: [
                     Text(
                       '${share.views}',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w500,
                         color: AppTheme.ink,
-                        fontFeatures: [FontFeature.tabularFigures()],
+                        fontFeatures: const [FontFeature.tabularFigures()],
                       ),
                     ),
-                    const Text('VIEWS',
+                    Text('VIEWS',
                         style: TextStyle(
                           fontSize: 9,
                           color: AppTheme.ink3,
@@ -319,8 +320,8 @@ class _ShareRow extends StatelessWidget {
                         )),
                     if (share.arSessions > 0) ...[
                       const SizedBox(height: 2),
-                      Text('+${share.arSessions} AR',
-                          style: const TextStyle(
+                      const Text('+AR',
+                          style: TextStyle(
                             fontSize: 10,
                             color: AppTheme.accent,
                             fontWeight: FontWeight.w500,
@@ -337,29 +338,97 @@ class _ShareRow extends StatelessWidget {
   }
 }
 
+/// Mini-thumb à esquerda de cada linha de compartilhamento. Aparece em
+/// lista que pode crescer — então NÃO usa `ModelViewer` (cada instância é
+/// uma WebView, custa memória demais quando há vários itens). Quando o
+/// produto tem `thumb_url`, mostra a imagem cacheada; caso contrário,
+/// um quadrado tingido com a inicial em serifa.
 class _MiniThumb extends StatelessWidget {
   const _MiniThumb({this.produto});
   final Produto? produto;
 
   @override
   Widget build(BuildContext context) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: SizedBox(
+        width: 56,
+        height: 56,
+        child: _buildContent(),
+      ),
+    );
+  }
+
+  Widget _buildContent() {
+    if (produto == null) {
+      return _Fallback(
+        letter: '?',
+        tint: AppTheme.bgMuted,
+        icon: Icons.broken_image_outlined,
+      );
+    }
+    final p = produto!;
+    if (p.thumbUrl != null && p.thumbUrl!.isNotEmpty) {
+      return CachedNetworkImage(
+        imageUrl: p.thumbUrl!,
+        fit: BoxFit.cover,
+        placeholder: (_, __) =>
+            _Fallback(letter: _initial(p.nome), tint: _tintFor(p.categoria)),
+        errorWidget: (_, __, ___) =>
+            _Fallback(letter: _initial(p.nome), tint: _tintFor(p.categoria)),
+      );
+    }
+    return _Fallback(
+      letter: _initial(p.nome),
+      tint: _tintFor(p.categoria),
+    );
+  }
+
+  String _initial(String nome) =>
+      nome.isNotEmpty ? nome.characters.first.toUpperCase() : '?';
+
+  Color _tintFor(String categoria) {
+    // Tintura suave por categoria — ajuda o olho a varrer a lista.
+    switch (categoria) {
+      case 'Móveis':
+        return AppTheme.accentTint;
+      case 'Decoração':
+        return AppTheme.brandRedTint;
+      case 'Eletro':
+        return AppTheme.brandGreenTint;
+      case 'Calçados':
+      case 'Vestuário':
+      case 'Acessórios':
+        return AppTheme.accentTint;
+      default:
+        return AppTheme.bgMuted;
+    }
+  }
+}
+
+class _Fallback extends StatelessWidget {
+  const _Fallback({required this.letter, required this.tint, this.icon});
+  final String letter;
+  final Color tint;
+  final IconData? icon;
+
+  @override
+  Widget build(BuildContext context) {
     return Container(
-      width: 48,
-      height: 48,
-      decoration: BoxDecoration(
-        color: AppTheme.bgMuted,
-        borderRadius: BorderRadius.circular(12),
-      ),
+      color: AppTheme.isDark ? AppTheme.bgMuted : tint,
       alignment: Alignment.center,
-      child: Text(
-        produto?.nome.isNotEmpty == true ? produto!.nome[0] : '?',
-        style: TextStyle(
-          fontFamily: AppTheme.fontDisplay,
-          fontStyle: FontStyle.italic,
-          fontSize: 20,
-          color: AppTheme.ink.withOpacity(0.4),
-        ),
-      ),
+      child: icon != null
+          ? Icon(icon, size: 18, color: AppTheme.ink4)
+          : Text(
+              letter,
+              style: TextStyle(
+                fontFamily: AppTheme.fontDisplay,
+                fontStyle: FontStyle.italic,
+                fontSize: 26,
+                color: AppTheme.ink.withOpacity(0.55),
+                letterSpacing: -0.5,
+              ),
+            ),
     );
   }
 }
@@ -377,14 +446,14 @@ class _EmptyState extends StatelessWidget {
             Icon(Icons.ios_share_outlined,
                 size: 44, color: AppTheme.ink3.withOpacity(0.6)),
             const SizedBox(height: 14),
-            const Text('Nada compartilhado ainda',
+            Text('Nada compartilhado ainda',
                 style: TextStyle(
                   fontSize: 17,
                   fontWeight: FontWeight.w600,
                   color: AppTheme.ink,
                 )),
             const SizedBox(height: 6),
-            const Text(
+            Text(
               'Abra um produto e toque em "Compartilhar" para enviar o link a um comprador.',
               textAlign: TextAlign.center,
               style: AppText.bodySm,

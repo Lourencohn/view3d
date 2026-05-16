@@ -44,13 +44,13 @@ class _Body extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 16, 16, 24),
       children: [
         // Header
-        const Padding(
-          padding: EdgeInsets.fromLTRB(4, 0, 4, 12),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(4, 0, 4, 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('ÚLTIMOS 7 DIAS', style: AppText.caption),
-              SizedBox(height: 4),
+              const SizedBox(height: 4),
               Text('Insights', style: AppText.titleXL),
             ],
           ),
@@ -140,7 +140,7 @@ class _HeroCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('TOTAL DE VIEWS',
+              Text('TOTAL DE VIEWS',
                   style: TextStyle(
                     fontSize: 10,
                     color: AppTheme.ink3,
@@ -156,13 +156,13 @@ class _HeroCard extends StatelessWidget {
             textBaseline: TextBaseline.alphabetic,
             children: [
               Text('${snap.views7d}',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: AppTheme.fontDisplay,
                     fontSize: 56,
                     height: 1,
                     letterSpacing: -1.4,
                     color: AppTheme.ink,
-                    fontFeatures: [FontFeature.tabularFigures()],
+                    fontFeatures: const [FontFeature.tabularFigures()],
                   )),
               const SizedBox(width: 10),
               Text('vs ',
@@ -173,7 +173,7 @@ class _HeroCard extends StatelessWidget {
                     fontStyle: FontStyle.italic,
                   )),
               Text('$previous',
-                  style: const TextStyle(
+                  style: TextStyle(
                     fontFamily: AppTheme.fontDisplay,
                     fontSize: 22,
                     color: AppTheme.ink4,
@@ -289,7 +289,7 @@ class _StatTile extends StatelessWidget {
             label.toUpperCase(),
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 10,
               color: AppTheme.ink3,
               letterSpacing: 0.8,
@@ -317,7 +317,7 @@ class _StatTile extends StatelessWidget {
                     if (suffix != null)
                       TextSpan(
                         text: suffix,
-                        style: const TextStyle(
+                        style: TextStyle(
                           fontFamily: 'system-ui',
                           fontSize: 14,
                           color: AppTheme.ink3,
@@ -396,14 +396,14 @@ class _TopProdutosCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('TOP PRODUTOS',
+              Text('TOP PRODUTOS',
                   style: TextStyle(
                     fontSize: 10,
                     color: AppTheme.ink3,
                     letterSpacing: 1.5,
                     fontWeight: FontWeight.w500,
                   )),
-              const Text('views · AR',
+              Text('views · AR',
                   style: TextStyle(fontSize: 10, color: AppTheme.ink4)),
             ],
           ),
@@ -457,7 +457,7 @@ class _TopRow extends StatelessWidget {
               width: 22,
               child: Text(
                 index.toString().padLeft(2, '0'),
-                style: const TextStyle(
+                style: TextStyle(
                   fontFamily: 'monospace',
                   fontSize: 11,
                   color: AppTheme.ink3,
@@ -492,7 +492,7 @@ class _TopRow extends StatelessWidget {
                     produto?.nome ?? 'Produto removido',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                       color: AppTheme.ink,
@@ -526,11 +526,11 @@ class _TopRow extends StatelessWidget {
               child: Text(
                 '$views',
                 textAlign: TextAlign.right,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 13,
                   fontWeight: FontWeight.w500,
                   color: AppTheme.ink,
-                  fontFeatures: [FontFeature.tabularFigures()],
+                  fontFeatures: const [FontFeature.tabularFigures()],
                 ),
               ),
             ),
@@ -578,7 +578,7 @@ class _CanaisCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text('POR ONDE COMPARTILHA',
+          Text('POR ONDE COMPARTILHA',
               style: TextStyle(
                 fontSize: 10,
                 color: AppTheme.ink3,
@@ -627,17 +627,17 @@ class _CanaisCard extends StatelessWidget {
                   Expanded(
                     child: Text(
                       canal.label,
-                      style: const TextStyle(
+                      style: TextStyle(
                           fontSize: 13, color: AppTheme.ink2),
                     ),
                   ),
                   Text(
                     '${(e.value * 100).round()}%',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
                       color: AppTheme.ink,
-                      fontFeatures: [FontFeature.tabularFigures()],
+                      fontFeatures: const [FontFeature.tabularFigures()],
                     ),
                   ),
                 ],

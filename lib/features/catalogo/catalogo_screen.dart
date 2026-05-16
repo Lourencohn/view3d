@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:model_viewer_plus/model_viewer_plus.dart';
 
 import '../../models/produto.dart';
 import '../../shared/widgets/app_error_widget.dart';
@@ -21,10 +22,8 @@ class CatalogoScreen extends ConsumerWidget {
       bottom: false,
       child: Column(
         children: [
-          // Filtros (sem header)
           _CategoriaFilters(active: filtro, ref: ref),
 
-          // Grid
           Expanded(
             child: produtos.when(
               loading: () => const LoadingWidget(),
@@ -132,7 +131,7 @@ class _ProdutoCard extends StatelessWidget {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
-                  _Thumb(produto: produto),
+                  ProdutoThumb(produto: produto),
                   Positioned(
                     top: 8,
                     right: 8,
@@ -145,7 +144,7 @@ class _ProdutoCard extends StatelessWidget {
                         color: AppTheme.ink.withOpacity(0.85),
                         borderRadius: BorderRadius.circular(999),
                       ),
-                      child: const Text(
+                      child: Text(
                         '3D · AR',
                         style: TextStyle(
                           color: AppTheme.bgApp,
@@ -168,7 +167,7 @@ class _ProdutoCard extends StatelessWidget {
                     produto.nome,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14,
                       fontWeight: FontWeight.w500,
                       letterSpacing: -0.1,
@@ -178,7 +177,7 @@ class _ProdutoCard extends StatelessWidget {
                   const SizedBox(height: 2),
                   Text(
                     produto.categoria,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 11,
                       color: AppTheme.ink3,
                       fontWeight: FontWeight.w500,
@@ -198,33 +197,126 @@ class _ProdutoCard extends StatelessWidget {
   }
 }
 
-class _Thumb extends StatelessWidget {
-  const _Thumb({required this.produto});
+/// Miniatura do produto. Usa `thumb_url` (imagem 2D) quando existir.
+/// Caso contrário, renderiza inline o próprio `glb` via [ModelViewer]
+/// com auto-rotação — assim cada card mostra o produto 3D real, sem
+/// dependência de assets pré-renderizados.
+class ProdutoThumb extends StatelessWidget {
+  const ProdutoThumb({
+    super.key,
+    required this.produto,
+    this.autoRotate = true,
+  });
+
+  final Produto produto;
+  final bool autoRotate;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasThumb =
+        produto.thumbUrl != null && produto.thumbUrl!.isNotEmpty;
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Palco gradiente — dá contraste tanto pra imagem PNG transparente
+        // quanto pro WebGL do model-viewer.
+        Container(
+          decoration: BoxDecoration(
+            gradient: RadialGradient(
+              center: const Alignment(0, -0.1),
+              radius: 0.9,
+              colors: AppTheme.isDark
+                  ? [
+                      AppTheme.bgMuted,
+                      AppTheme.bgApp,
+                    ]
+                  : const [
+                      Colors.white,
+                      Color(0xFFE8EEF5),
+                    ],
+            ),
+          ),
+        ),
+        if (hasThumb)
+          CachedNetworkImage(
+            imageUrl: produto.thumbUrl!,
+            fit: BoxFit.cover,
+            placeholder: (_, __) => const SizedBox.shrink(),
+            errorWidget: (_, __, ___) => _GlbInline(
+              produto: produto,
+              autoRotate: autoRotate,
+            ),
+          )
+        else
+          _GlbInline(produto: produto, autoRotate: autoRotate),
+      ],
+    );
+  }
+}
+
+class _GlbInline extends StatefulWidget {
+  const _GlbInline({required this.produto, required this.autoRotate});
+  final Produto produto;
+  final bool autoRotate;
+
+  @override
+  State<_GlbInline> createState() => _GlbInlineState();
+}
+
+class _GlbInlineState extends State<_GlbInline> {
+  bool _ready = false;
+
+  @override
+  void initState() {
+    super.initState();
+    // model_viewer_plus não expõe progresso pro Dart — damos um beat
+    // pra exibir o pôster antes do WebView "piscar".
+    Future.delayed(const Duration(milliseconds: 1200), () {
+      if (mounted) setState(() => _ready = true);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        // Pôster de inicial — fica visível durante o load do WebView.
+        _PosterInitial(produto: widget.produto),
+        AnimatedOpacity(
+          duration: const Duration(milliseconds: 350),
+          opacity: _ready ? 1.0 : 0.0,
+          child: IgnorePointer(
+            child: ModelViewer(
+              src: widget.produto.glbUrl,
+              alt: widget.produto.nome,
+              autoRotate: widget.autoRotate,
+              cameraControls: false,
+              autoPlay: true,
+              disableTap: true,
+              disableZoom: true,
+              disablePan: true,
+              interactionPrompt: InteractionPrompt.none,
+              loading: Loading.lazy,
+              backgroundColor: const Color(0x00000000),
+              shadowIntensity: 0.6,
+              exposure: 1.0,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _PosterInitial extends StatelessWidget {
+  const _PosterInitial({required this.produto});
   final Produto produto;
 
   @override
   Widget build(BuildContext context) {
-    if (produto.thumbUrl != null && produto.thumbUrl!.isNotEmpty) {
-      return CachedNetworkImage(
-        imageUrl: produto.thumbUrl!,
-        fit: BoxFit.cover,
-        placeholder: (c, _) => Container(color: AppTheme.bgMuted),
-        errorWidget: (c, _, __) => _placeholder(),
-      );
-    }
-    return _placeholder();
-  }
-
-  Widget _placeholder() {
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: RadialGradient(
-          center: Alignment(0, -0.1),
-          radius: 0.9,
-          colors: [Colors.white, AppTheme.bgMuted],
-        ),
-      ),
-      alignment: Alignment.center,
+    return Center(
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Text(
@@ -236,7 +328,7 @@ class _Thumb extends StatelessWidget {
             fontStyle: FontStyle.italic,
             fontSize: 34,
             height: 1.0,
-            color: AppTheme.ink.withOpacity(0.22),
+            color: AppTheme.ink.withOpacity(0.18),
             letterSpacing: -0.5,
           ),
         ),
@@ -262,7 +354,7 @@ class _EmptyState extends StatelessWidget {
               color: AppTheme.ink3.withOpacity(0.6),
             ),
             const SizedBox(height: 16),
-            const Text(
+            Text(
               'Catálogo vazio',
               style: TextStyle(
                 fontSize: 17,
@@ -271,7 +363,7 @@ class _EmptyState extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 6),
-            const Text(
+            Text(
               'Nenhum produto publicado para sua empresa ainda.',
               textAlign: TextAlign.center,
               style: AppText.bodySm,

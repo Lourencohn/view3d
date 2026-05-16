@@ -42,7 +42,12 @@ view3d/
 │   ├── main.dart                # bootstrap (Supabase.initialize + ProviderScope)
 │   ├── supabase_config.dart     # PLACEHOLDER — cole URL + anon key
 │   ├── router.dart              # go_router com ShellRoute + redirect baseado em auth
-│   ├── theme.dart               # tokens visuais (Material 3 + serif Instrument)
+│   ├── theme.dart               # tokens visuais (Material 3 + serif Instrument).
+│   │                             # `AppTheme.ink/bg*/line*` são GETTERS que respondem
+│   │                             # ao tema atual; brand colors continuam `const`.
+│   ├── providers/
+│   │   └── theme_mode_provider.dart # StateNotifier de ThemeMode + persistência em
+│   │                                 # SharedPreferences. Sincroniza `AppTheme.setDark`.
 │   ├── models/
 │   │   ├── produto.dart           # fromJson/toJson (snake_case)
 │   │   ├── usuario.dart           # junção auth.users + public.profiles
@@ -235,6 +240,8 @@ node scripts/seed.mjs
 - [x] Página pública do viewer funciona sem login (RLS read público em `produtos`)
 - [x] AR ativa modo correto por plataforma (`webxr` Android / `quick-look` iOS)
 - [x] QR copia o link para o clipboard automaticamente com feedback visual
+- [x] Modo escuro toggle em `Conta` → `themeModeProvider` persiste em SharedPreferences
+- [x] Cards do Catálogo renderizam o GLB inline (auto-rotate, sem interação)
 - [ ] Upload de GLB com barra de progresso percentual _(parte do painel admin — pendente)_
 
 ## 8. Rotas (go_router)
@@ -276,7 +283,7 @@ node scripts/seed.mjs
 2. **Insights via Postgres** — view materializada ou função RPC que agrega `compartilhamentos` por empresa e janela de 7 dias. Substituir mock em `insights_provider.dart`.
 3. **Analytics do viewer público** — `web/viewer/viewer.js` insere em `viewer_events` (RLS append-only via anon role).
 4. **Painel admin (web)** — rota `/admin`, upload GLB com progresso (`uploadBinary` + listener), gestão de produtos.
-5. **Modo escuro persistido** — `themeModeProvider` (SharedPreferences) + wire no toggle do `ContaScreen`.
+5. ~~**Modo escuro persistido** — `themeModeProvider` (SharedPreferences) + wire no toggle do `ContaScreen`.~~ ✅ Feito (2026-05).
 6. **Deep links** universais — `applinks` (iOS) + `App Links` (Android) pra abrir `/produto/:id` direto.
 7. **Variantes** — produto com múltiplos GLB (cor/material).
 8. **Hospedar viewer** em domínio próprio (`catalogo.trovata.com.br`) via Cloudflare Pages.

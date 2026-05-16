@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/usuario.dart';
+import '../../providers/theme_mode_provider.dart';
 import '../../shared/widgets/loading_widget.dart';
 import '../../theme.dart';
 import '../auth/auth_provider.dart';
@@ -17,19 +18,21 @@ class ContaScreen extends ConsumerWidget {
       return const LoadingWidget();
     }
     final user = auth.usuario;
+    final themeMode = ref.watch(themeModeProvider);
+    final isDark = themeMode == ThemeMode.dark;
 
     return SafeArea(
       bottom: false,
       child: ListView(
         children: [
           // Header
-          const Padding(
-            padding: EdgeInsets.fromLTRB(20, 16, 20, 4),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('PERFIL', style: AppText.caption),
-                SizedBox(height: 4),
+                const SizedBox(height: 4),
                 Text('Conta', style: AppText.titleXL),
               ],
             ),
@@ -53,7 +56,7 @@ class ContaScreen extends ConsumerWidget {
               label: 'E-mail',
               value: _truncate(user.email, 18),
             ),
-            _Row(
+            const _Row(
               icon: Icons.lock_outline_rounded,
               label: 'Senha',
               value: 'Trocar',
@@ -68,7 +71,7 @@ class ContaScreen extends ConsumerWidget {
 
           // Preferências
           _Section(title: 'Preferências', children: [
-            _Row(
+            const _Row(
               icon: Icons.notifications_none_rounded,
               label: 'Notificações',
               value: 'Ativas',
@@ -77,20 +80,16 @@ class ContaScreen extends ConsumerWidget {
               icon: Icons.dark_mode_outlined,
               label: 'Modo escuro',
               trailing: Switch(
-                value: Theme.of(context).brightness == Brightness.dark,
-                onChanged: (_) {
-                  // TODO: persistir tema escolhido — `themeModeProvider`
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text(
-                          'Modo escuro chega em breve — wire em `ThemeProvider`.'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
+                value: isDark,
+                activeColor: AppTheme.accent,
+                onChanged: (v) {
+                  ref
+                      .read(themeModeProvider.notifier)
+                      .setMode(v ? ThemeMode.dark : ThemeMode.light);
                 },
               ),
             ),
-            _Row(
+            const _Row(
               icon: Icons.translate_rounded,
               label: 'Idioma',
               value: 'Português',
@@ -100,15 +99,15 @@ class ContaScreen extends ConsumerWidget {
 
           // Sobre
           _Section(title: 'Sobre', children: [
-            _Row(
+            const _Row(
               icon: Icons.info_outline_rounded,
               label: 'Sobre a TROVATA',
             ),
-            _Row(
+            const _Row(
               icon: Icons.shield_outlined,
               label: 'Termos e privacidade',
             ),
-            _Row(
+            const _Row(
               icon: Icons.support_agent_rounded,
               label: 'Falar com suporte',
               value: 'ajuda@trovata.com.br',
@@ -173,8 +172,8 @@ class ContaScreen extends ConsumerWidget {
           ),
 
           // Version footer
-          const Padding(
-            padding: EdgeInsets.symmetric(vertical: 18),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 18),
             child: Center(
               child: Text(
                 'TROVATA · v0.1.0 · © 2026 Trovata · Birigui-SP',
@@ -218,14 +217,14 @@ class _ProfileCard extends StatelessWidget {
           Container(
             width: 64,
             height: 64,
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               color: AppTheme.ink,
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
             child: Text(
               user.iniciais,
-              style: const TextStyle(
+              style: TextStyle(
                 fontFamily: AppTheme.fontDisplay,
                 fontSize: 26,
                 color: AppTheme.bgApp,
@@ -242,7 +241,7 @@ class _ProfileCard extends StatelessWidget {
                 Text(user.nome,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontFamily: AppTheme.fontDisplay,
                       fontSize: 26,
                       height: 1.0,
@@ -253,7 +252,7 @@ class _ProfileCard extends StatelessWidget {
                 Text(user.email,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 12,
                       color: AppTheme.ink3,
                     )),
@@ -348,7 +347,7 @@ class _Row extends StatelessWidget {
         decoration: BoxDecoration(
           border: isLast
               ? null
-              : const Border(
+              : Border(
                   bottom: BorderSide(color: AppTheme.line, width: 0.5),
                 ),
         ),
@@ -368,7 +367,7 @@ class _Row extends StatelessWidget {
             Expanded(
               child: Text(
                 label,
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 15,
                   color: AppTheme.ink,
                   letterSpacing: -0.1,
@@ -379,11 +378,11 @@ class _Row extends StatelessWidget {
             if (trailing == null && value != null)
               Text(
                 value!,
-                style: const TextStyle(fontSize: 13, color: AppTheme.ink3),
+                style: TextStyle(fontSize: 13, color: AppTheme.ink3),
               ),
             if (trailing == null) ...[
               const SizedBox(width: 6),
-              const Icon(Icons.chevron_right_rounded,
+              Icon(Icons.chevron_right_rounded,
                   size: 18, color: AppTheme.ink4),
             ],
           ],
