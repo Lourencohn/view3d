@@ -102,6 +102,6 @@ class _SplashScreen extends StatelessWidget {
 
 class _RouterRefresh extends ChangeNotifier {
   _RouterRefresh(Ref ref) {
-    ref.listen<AuthState>(authStateProvider, (_, __) => notifyListeners());
+    ref.listen<AppAuthState>(authStateProvider, (_, __) => notifyListeners());
   }
 }

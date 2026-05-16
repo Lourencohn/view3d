@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 enum Papel { admin, vendedor }
 
 Papel _papelFromString(String? s) {
@@ -9,7 +7,7 @@ Papel _papelFromString(String? s) {
   );
 }
 
-/// Usuário autenticado. Carregado em `usuarios/{uid}` após login.
+/// Usuário autenticado. Vem da junção entre `auth.users` e `public.profiles`.
 class Usuario {
   final String uid;
   final String nome;
@@ -29,24 +27,22 @@ class Usuario {
 
   bool get isAdmin => papel == Papel.admin;
 
-  factory Usuario.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final d = doc.data() ?? {};
-    return Usuario(
-      uid: doc.id,
-      nome: (d['nome'] ?? '') as String,
-      email: (d['email'] ?? '') as String,
-      empresaId: (d['empresaId'] ?? '') as String,
-      papel: _papelFromString(d['papel'] as String?),
-      criadoEm: (d['criadoEm'] as Timestamp?)?.toDate() ?? DateTime.now(),
-    );
-  }
+  factory Usuario.fromJson(Map<String, dynamic> j) => Usuario(
+        uid: j['id'] as String,
+        nome: (j['nome'] ?? '') as String,
+        email: (j['email'] ?? '') as String,
+        empresaId: (j['empresa_id'] ?? '') as String,
+        papel: _papelFromString(j['papel'] as String?),
+        criadoEm: DateTime.tryParse((j['criado_em'] ?? '') as String) ??
+            DateTime.now(),
+      );
 
-  Map<String, dynamic> toFirestore() => {
+  Map<String, dynamic> toJson() => {
+        'id': uid,
         'nome': nome,
         'email': email,
-        'empresaId': empresaId,
+        'empresa_id': empresaId,
         'papel': papel.name,
-        'criadoEm': Timestamp.fromDate(criadoEm),
       };
 
   /// Iniciais para avatar (até 2 letras).

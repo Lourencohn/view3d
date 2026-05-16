@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 /// Produto 3D — metadados + URL pública do GLB.
 class Produto {
   final String id;
@@ -8,11 +6,10 @@ class Produto {
   final String categoria;
   final String empresaId;
 
-  /// URL pública do arquivo .glb no Firebase Storage.
+  /// URL pública do arquivo .glb (Supabase Storage ou externo).
   final String glbUrl;
 
-  /// URL pública da página do viewer (compartilhável):
-  /// `https://catalogo.trovata.com.br/v/{id}`
+  /// URL pública da página do viewer (compartilhável).
   final String viewerUrl;
 
   /// Opcional — URL de thumbnail PNG/JPG. Se nulo, a UI mostra placeholder.
@@ -21,7 +18,6 @@ class Produto {
   final bool ativo;
   final DateTime criadoEm;
 
-  // Campos opcionais usados na UI; expandir conforme catálogo evolui.
   final String? sku;
   final String? cor;
   final String? dimensoes;
@@ -48,38 +44,36 @@ class Produto {
     this.preco,
   });
 
-  factory Produto.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final d = doc.data() ?? {};
-    return Produto(
-      id: doc.id,
-      nome: (d['nome'] ?? '') as String,
-      descricao: (d['descricao'] ?? '') as String,
-      categoria: (d['categoria'] ?? 'Outros') as String,
-      empresaId: (d['empresaId'] ?? '') as String,
-      glbUrl: (d['glbUrl'] ?? '') as String,
-      viewerUrl: (d['viewerUrl'] ?? '') as String,
-      thumbUrl: d['thumbUrl'] as String?,
-      ativo: (d['ativo'] ?? true) as bool,
-      criadoEm: (d['criadoEm'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      sku: d['sku'] as String?,
-      cor: d['cor'] as String?,
-      dimensoes: d['dimensoes'] as String?,
-      peso: d['peso'] as String?,
-      materiais: d['materiais'] as String?,
-      preco: d['preco'] as String?,
-    );
-  }
+  factory Produto.fromJson(Map<String, dynamic> j) => Produto(
+        id: j['id'] as String,
+        nome: (j['nome'] ?? '') as String,
+        descricao: (j['descricao'] ?? '') as String,
+        categoria: (j['categoria'] ?? 'Outros') as String,
+        empresaId: (j['empresa_id'] ?? '') as String,
+        glbUrl: (j['glb_url'] ?? '') as String,
+        viewerUrl: (j['viewer_url'] ?? '') as String,
+        thumbUrl: j['thumb_url'] as String?,
+        ativo: (j['ativo'] ?? true) as bool,
+        criadoEm:
+            DateTime.tryParse((j['criado_em'] ?? '') as String) ?? DateTime.now(),
+        sku: j['sku'] as String?,
+        cor: j['cor'] as String?,
+        dimensoes: j['dimensoes'] as String?,
+        peso: j['peso'] as String?,
+        materiais: j['materiais'] as String?,
+        preco: j['preco'] as String?,
+      );
 
-  Map<String, dynamic> toFirestore() => {
+  Map<String, dynamic> toJson() => {
+        'id': id,
         'nome': nome,
         'descricao': descricao,
         'categoria': categoria,
-        'empresaId': empresaId,
-        'glbUrl': glbUrl,
-        'viewerUrl': viewerUrl,
-        if (thumbUrl != null) 'thumbUrl': thumbUrl,
+        'empresa_id': empresaId,
+        'glb_url': glbUrl,
+        'viewer_url': viewerUrl,
+        if (thumbUrl != null) 'thumb_url': thumbUrl,
         'ativo': ativo,
-        'criadoEm': Timestamp.fromDate(criadoEm),
         if (sku != null) 'sku': sku,
         if (cor != null) 'cor': cor,
         if (dimensoes != null) 'dimensoes': dimensoes,

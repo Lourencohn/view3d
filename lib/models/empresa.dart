@@ -1,6 +1,4 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
-/// Empresa (tenant). Toda query de produtos DEVE filtrar por [id] da empresa.
+/// Empresa (tenant). Toda query de produtos filtra por [id] da empresa.
 class Empresa {
   final String id;
   final String nome;
@@ -16,21 +14,19 @@ class Empresa {
     required this.criadoEm,
   });
 
-  factory Empresa.fromFirestore(DocumentSnapshot<Map<String, dynamic>> doc) {
-    final d = doc.data() ?? {};
-    return Empresa(
-      id: doc.id,
-      nome: (d['nome'] ?? '') as String,
-      cnpj: (d['cnpj'] ?? '') as String,
-      ativo: (d['ativo'] ?? true) as bool,
-      criadoEm: (d['criadoEm'] as Timestamp?)?.toDate() ?? DateTime.now(),
-    );
-  }
+  factory Empresa.fromJson(Map<String, dynamic> j) => Empresa(
+        id: j['id'] as String,
+        nome: (j['nome'] ?? '') as String,
+        cnpj: (j['cnpj'] ?? '') as String,
+        ativo: (j['ativo'] ?? true) as bool,
+        criadoEm: DateTime.tryParse((j['criado_em'] ?? '') as String) ??
+            DateTime.now(),
+      );
 
-  Map<String, dynamic> toFirestore() => {
+  Map<String, dynamic> toJson() => {
+        'id': id,
         'nome': nome,
         'cnpj': cnpj,
         'ativo': ativo,
-        'criadoEm': Timestamp.fromDate(criadoEm),
       };
 }

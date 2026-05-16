@@ -1,5 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-
 enum Canal { whatsapp, email, qr, link, sistema }
 
 Canal _canalFromString(String? s) {
@@ -18,7 +16,6 @@ extension CanalX on Canal {
         Canal.sistema  => 'Sistema',
       };
 
-  /// Cor para o pin/chip da UI.
   int get colorHex => switch (this) {
         Canal.whatsapp => 0xFF25D366,
         Canal.email    => 0xFF0A84FF,
@@ -28,17 +25,16 @@ extension CanalX on Canal {
       };
 }
 
-/// Um evento de compartilhamento — alimenta a tela "Compartilhados" e os
-/// insights. Persistido em `compartilhamentos/{id}` (criar essa coleção
-/// no Firestore quando for hora; por enquanto vem de mock).
+/// Evento de compartilhamento — persistido em `compartilhamentos`
+/// (por enquanto a tela usa mock; trocar quando o ShareSheet gravar de fato).
 class Compartilhamento {
   final String id;
   final String produtoId;
   final String empresaId;
-  final String uid;           // vendedor que compartilhou
+  final String uid;
   final Canal canal;
-  final String? comprador;    // nome amigável (opcional)
-  final String? contato;      // telefone, email, etc (opcional)
+  final String? comprador;
+  final String? contato;
   final DateTime dataHora;
   final int views;
   final int arSessions;
@@ -58,42 +54,39 @@ class Compartilhamento {
     this.ultimoAcesso,
   });
 
-  factory Compartilhamento.fromFirestore(
-    DocumentSnapshot<Map<String, dynamic>> doc,
-  ) {
-    final d = doc.data() ?? {};
-    return Compartilhamento(
-      id: doc.id,
-      produtoId: (d['produtoId'] ?? '') as String,
-      empresaId: (d['empresaId'] ?? '') as String,
-      uid: (d['uid'] ?? '') as String,
-      canal: _canalFromString(d['canal'] as String?),
-      comprador: d['comprador'] as String?,
-      contato: d['contato'] as String?,
-      dataHora: (d['dataHora'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      views: (d['views'] ?? 0) as int,
-      arSessions: (d['arSessions'] ?? 0) as int,
-      ultimoAcesso: (d['ultimoAcesso'] as Timestamp?)?.toDate(),
-    );
-  }
+  factory Compartilhamento.fromJson(Map<String, dynamic> j) => Compartilhamento(
+        id: j['id'] as String,
+        produtoId: (j['produto_id'] ?? '') as String,
+        empresaId: (j['empresa_id'] ?? '') as String,
+        uid: (j['uid'] ?? '') as String,
+        canal: _canalFromString(j['canal'] as String?),
+        comprador: j['comprador'] as String?,
+        contato: j['contato'] as String?,
+        dataHora: DateTime.tryParse((j['data_hora'] ?? '') as String) ??
+            DateTime.now(),
+        views: (j['views'] ?? 0) as int,
+        arSessions: (j['ar_sessions'] ?? 0) as int,
+        ultimoAcesso: j['ultimo_acesso'] != null
+            ? DateTime.tryParse(j['ultimo_acesso'] as String)
+            : null,
+      );
 
-  Map<String, dynamic> toFirestore() => {
-        'produtoId': produtoId,
-        'empresaId': empresaId,
+  Map<String, dynamic> toJson() => {
+        'produto_id': produtoId,
+        'empresa_id': empresaId,
         'uid': uid,
         'canal': canal.name,
         if (comprador != null) 'comprador': comprador,
         if (contato != null) 'contato': contato,
-        'dataHora': Timestamp.fromDate(dataHora),
+        'data_hora': dataHora.toIso8601String(),
         'views': views,
-        'arSessions': arSessions,
+        'ar_sessions': arSessions,
         if (ultimoAcesso != null)
-          'ultimoAcesso': Timestamp.fromDate(ultimoAcesso!),
+          'ultimo_acesso': ultimoAcesso!.toIso8601String(),
       };
 }
 
-/// Snapshot agregado de métricas dos últimos 7 dias para a tela "Insights".
-/// No futuro: gerado por Cloud Function diária em `insights/{empresaId}`.
+/// Snapshot agregado dos últimos 7 dias para a tela "Insights" (mock).
 class InsightsSnapshot {
   final int views7d;
   final double views7dDelta;
@@ -103,14 +96,8 @@ class InsightsSnapshot {
   final double arSessionsDelta;
   final int avgTimeSec;
   final double avgTimeDelta;
-
-  /// 7 valores — mais antigo → mais recente.
   final List<int> viewsSeries;
-
-  /// Lista ordenada por views desc — id → contagens.
   final List<TopProduto> topProdutos;
-
-  /// Map canal.name → fração 0..1
   final Map<String, double> canais;
 
   const InsightsSnapshot({

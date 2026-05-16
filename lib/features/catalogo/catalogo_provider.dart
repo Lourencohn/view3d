@@ -1,24 +1,26 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../models/produto.dart';
 import '../auth/auth_provider.dart';
 
-/// Stream dos produtos ativos da empresa do usuário logado.
-/// Filtra por `empresaId` (multi-tenancy obrigatória) + `ativo == true`.
+/// Stream dos produtos da empresa do usuário logado.
+/// Filtra por `empresa_id` (multi-tenancy) e `ativo == true` (cliente-side
+/// porque o realtime stream do Supabase aceita um único filter eq).
 final produtosProvider = StreamProvider<List<Produto>>((ref) {
   final auth = ref.watch(authStateProvider);
-  final db = ref.watch(firestoreProvider);
+  final client = ref.watch(supabaseClientProvider);
 
   if (auth is! AuthSignedIn) return Stream.value(const []);
 
-  return db
-      .collection('produtos')
-      .where('empresaId', isEqualTo: auth.usuario.empresaId)
-      .where('ativo', isEqualTo: true)
-      .orderBy('criadoEm', descending: true)
-      .snapshots()
-      .map((snap) => snap.docs.map(Produto.fromFirestore).toList());
+  return client
+      .from('produtos')
+      .stream(primaryKey: ['id'])
+      .eq('empresa_id', auth.usuario.empresaId)
+      .order('criado_em', ascending: false)
+      .map((rows) => rows
+          .where((r) => r['ativo'] == true)
+          .map(Produto.fromJson)
+          .toList());
 });
 
 /// Filtro por categoria — driver do que aparece no catálogo.
@@ -38,8 +40,10 @@ final produtosFiltradosProvider = Provider<AsyncValue<List<Produto>>>((ref) {
 /// Produto específico por id — usado nas telas de detalhe / QR.
 final produtoByIdProvider =
     StreamProvider.family<Produto?, String>((ref, id) {
-  final db = ref.watch(firestoreProvider);
-  return db.collection('produtos').doc(id).snapshots().map(
-        (doc) => doc.exists ? Produto.fromFirestore(doc) : null,
-      );
+  final client = ref.watch(supabaseClientProvider);
+  return client
+      .from('produtos')
+      .stream(primaryKey: ['id'])
+      .eq('id', id)
+      .map((rows) => rows.isEmpty ? null : Produto.fromJson(rows.first));
 });

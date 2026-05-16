@@ -1,33 +1,20 @@
-// viewer.js — bootstrap da página pública.
+// viewer.js — página pública do produto.
 //
-// Roteamento: /v/{produtoId}
-//   1. extrai o produtoId da URL
-//   2. lê o doc produtos/{produtoId} no Firestore (regra de read pública)
-//   3. preenche o <model-viewer src=...> e os metadados
+// Roteamento aceito:
+//   ?id=plt-est-01                ← funciona com qualquer servidor estático
+//   /v/plt-est-01                 ← se o host tiver rewrite (Cloudflare Pages / Nginx)
 //
-// Dependências: model-viewer (carregado via CDN em index.html) e Firebase JS.
+// Dependências: model-viewer (CDN, carregado no index.html) + supabase-js (CDN).
 
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
-import {
-  getFirestore, doc, getDoc,
-} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-// ─── Firebase config ────────────────────────────────────────────
-// IMPORTANTE: substitua pelas chaves reais do seu projeto (Console Firebase
-// → Project Settings → SDK setup and configuration → CDN).
-// Estes valores estão DUPLICADOS em lib/firebase_options.dart só para
-// referência visual — o que vale aqui é este config.
-const firebaseConfig = {
-  apiKey: 'PLACEHOLDER_WEB_API_KEY',
-  authDomain: 'trovata-placeholder.firebaseapp.com',
-  projectId: 'trovata-placeholder',
-  storageBucket: 'trovata-placeholder.appspot.com',
-  messagingSenderId: 'PLACEHOLDER_SENDER_ID',
-  appId: 'PLACEHOLDER_WEB_APP_ID',
-};
+// ─── Supabase config ────────────────────────────────────────────
+// Cole AS MESMAS chaves que estão em lib/supabase_config.dart.
+// A anon key é pública por design — pode commitar.
+const SUPABASE_URL = 'PLACEHOLDER_SUPABASE_URL';
+const SUPABASE_ANON_KEY = 'PLACEHOLDER_SUPABASE_ANON_KEY';
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ─── DOM helpers ────────────────────────────────────────────────
 const $ = (sel) => document.querySelector(sel);
@@ -37,10 +24,7 @@ const arBtn = $('#arBtn');
 const arBtn2 = $('#arBtn2');
 const arBtnLabel = $('#arBtnLabel');
 
-function fmt(text) { return text ? text : ''; }
-
 function renderProduct(p) {
-  // Title
   document.title = `${p.nome} · TROVATA`;
   $('#og-title').setAttribute('content', p.nome);
   $('#og-desc').setAttribute('content', p.descricao || 'Veja em 3D e AR.');
@@ -53,18 +37,16 @@ function renderProduct(p) {
   $('#footUrl').textContent =
     window.location.href.replace(/^https?:\/\//, '');
 
-  // model
-  viewer.src = p.glbUrl;
+  viewer.src = p.glb_url;
   viewer.alt = p.nome;
 
-  // specs
   const specs = [
     ['SKU', p.sku, { mono: true }],
     ['Dimensões', p.dimensoes],
     ['Peso', p.peso],
     ['Material', p.materiais],
     ['Preço sugerido', p.preco, { accent: true, full: true }],
-  ].filter(([_, v]) => v);
+  ].filter(([, v]) => v);
 
   $('#specs').innerHTML = specs.map(([k, v, opt = {}]) => `
     <div class="${opt.full ? 'spec-full' : ''}">
@@ -88,29 +70,38 @@ function renderError(title, msg) {
 
 // ─── Boot ───────────────────────────────────────────────────────
 (async () => {
-  // /v/abc123  →  abc123
-  const path = window.location.pathname.replace(/\/+$/, '');
-  const produtoId = path.split('/').pop();
+  const params = new URLSearchParams(window.location.search);
+  const fromPath = window.location.pathname
+    .replace(/\/+$/, '').split('/').pop();
+  const produtoId =
+    params.get('id') ||
+    (fromPath && fromPath !== 'v' && fromPath !== 'viewer' && fromPath !== ''
+      ? fromPath
+      : null);
 
-  if (!produtoId || produtoId === 'v' || produtoId === '') {
+  if (!produtoId) {
     renderError('Link inválido', 'A URL não inclui um produto.');
     return;
   }
 
   try {
-    const snap = await getDoc(doc(db, 'produtos', produtoId));
-    if (!snap.exists()) {
+    const { data, error } = await supabase
+      .from('produtos')
+      .select('*')
+      .eq('id', produtoId)
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) {
       renderError('Produto não encontrado',
         'Este link pode ter expirado ou o produto foi removido.');
       return;
     }
-    const data = snap.data();
     if (data.ativo === false) {
       renderError('Produto indisponível',
         'Este produto não está mais publicado.');
       return;
     }
-    renderProduct({ id: produtoId, ...data });
+    renderProduct(data);
   } catch (e) {
     console.error(e);
     renderError('Erro ao carregar',
@@ -127,10 +118,8 @@ viewer.addEventListener('progress', (e) => {
 viewer.addEventListener('load', () => {
   loading.classList.add('hidden');
 
-  // Mostra o botão de AR apenas se o dispositivo suporta
   if (viewer.canActivateAR) {
     arBtn.hidden = false;
-    // Texto contextual
     const ua = navigator.userAgent;
     if (/iPhone|iPad|iPod/.test(ua)) {
       arBtnLabel.textContent = 'Ver no meu espaço (AR)';
@@ -149,7 +138,6 @@ arBtn.addEventListener('click', activateAR);
 arBtn2.addEventListener('click', activateAR);
 
 $('#quoteBtn')?.addEventListener('click', () => {
-  // Hook para integração futura — por enquanto abre mailto.
   const subject = encodeURIComponent(`Orçamento: ${$('#nome').textContent}`);
   const body = encodeURIComponent(
     `Olá, gostaria de orçamento para o produto deste link:\n${window.location.href}`,

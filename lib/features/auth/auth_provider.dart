@@ -1,136 +1,130 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../../models/usuario.dart';
 
-/// Estado de autenticação consumido em todo o app.
-///
-/// - [firebaseUserProvider] expõe o stream de FirebaseAuth
-/// - [usuarioProvider] carrega o documento `usuarios/{uid}` correspondente
-/// - [authStateProvider] devolve um AuthState consolidado (estado + usuário)
-/// - [authControllerProvider] expõe ações: signIn, signOut
-
-final firebaseAuthProvider = Provider<FirebaseAuth>((ref) {
-  return FirebaseAuth.instance;
+/// Cliente Supabase compartilhado.
+final supabaseClientProvider = Provider<SupabaseClient>((ref) {
+  return Supabase.instance.client;
 });
 
-final firestoreProvider = Provider<FirebaseFirestore>((ref) {
-  return FirebaseFirestore.instance;
+/// Stream interno do Supabase Auth (eventos signIn/signOut/refresh).
+final _authChangesProvider = StreamProvider<AuthState>((ref) {
+  return ref.watch(supabaseClientProvider).auth.onAuthStateChange;
 });
 
-/// Stream do usuário do Firebase (User?).
-final firebaseUserProvider = StreamProvider<User?>((ref) {
-  return ref.watch(firebaseAuthProvider).authStateChanges();
-});
-
-/// Carrega o documento `usuarios/{uid}` quando há sessão.
-final usuarioProvider = StreamProvider<Usuario?>((ref) {
-  final userAsync = ref.watch(firebaseUserProvider);
-  final db = ref.watch(firestoreProvider);
-
-  return userAsync.when(
-    data: (user) {
-      if (user == null) return Stream.value(null);
-      return db
-          .collection('usuarios')
-          .doc(user.uid)
-          .snapshots()
-          .map((doc) => doc.exists ? Usuario.fromFirestore(doc) : null);
-    },
-    loading: () => const Stream.empty(),
-    error: (_, __) => Stream.value(null),
+/// Sessão atual — começa pelo cache (currentSession) e reage ao stream.
+final sessionProvider = Provider<Session?>((ref) {
+  final stream = ref.watch(_authChangesProvider);
+  return stream.maybeWhen(
+    data: (s) => s.session,
+    orElse: () => ref.watch(supabaseClientProvider).auth.currentSession,
   );
 });
 
-/// Estado consolidado: 'loading' enquanto carrega o doc do usuário,
-/// 'signedOut' se não tem sessão, 'signedIn' com usuário pronto.
-sealed class AuthState {
-  const AuthState();
+/// Perfil do usuário logado — `public.profiles` linkado a `auth.users`.
+final usuarioProvider = FutureProvider<Usuario?>((ref) async {
+  final session = ref.watch(sessionProvider);
+  if (session == null) return null;
+  final client = ref.watch(supabaseClientProvider);
+  final user = session.user;
+
+  final row = await client
+      .from('profiles')
+      .select()
+      .eq('id', user.id)
+      .maybeSingle();
+  if (row == null) return null;
+  return Usuario.fromJson({
+    ...row,
+    'id': user.id,
+    'email': user.email ?? row['email'] ?? '',
+  });
+});
+
+/// Estado consolidado de auth — consumido pelo router e telas.
+sealed class AppAuthState {
+  const AppAuthState();
 }
 
-class AuthLoading extends AuthState {
+class AuthLoading extends AppAuthState {
   const AuthLoading();
 }
 
-class AuthSignedOut extends AuthState {
+class AuthSignedOut extends AppAuthState {
   const AuthSignedOut();
 }
 
-class AuthSignedIn extends AuthState {
+class AuthSignedIn extends AppAuthState {
   final Usuario usuario;
   const AuthSignedIn(this.usuario);
 }
 
-final authStateProvider = Provider<AuthState>((ref) {
-  final user = ref.watch(firebaseUserProvider);
-  final usuario = ref.watch(usuarioProvider);
+final authStateProvider = Provider<AppAuthState>((ref) {
+  final authStream = ref.watch(_authChangesProvider);
+  final session = ref.watch(sessionProvider);
 
-  return user.when(
+  if (session == null) {
+    return authStream.maybeWhen(
+      loading: () => const AuthLoading(),
+      orElse: () => const AuthSignedOut(),
+    );
+  }
+
+  final usuario = ref.watch(usuarioProvider);
+  return usuario.when(
     loading: () => const AuthLoading(),
     error: (_, __) => const AuthSignedOut(),
-    data: (u) {
-      if (u == null) return const AuthSignedOut();
-      return usuario.when(
-        loading: () => const AuthLoading(),
-        error: (_, __) => const AuthSignedOut(),
-        data: (doc) =>
-            doc == null ? const AuthLoading() : AuthSignedIn(doc),
-      );
-    },
+    data: (u) => u == null ? const AuthLoading() : AuthSignedIn(u),
   );
 });
 
 class AuthController {
-  AuthController(this._auth);
-  final FirebaseAuth _auth;
+  AuthController(this._client);
+  final SupabaseClient _client;
 
   Future<void> signInWithEmail(String email, String password) async {
     try {
-      await _auth.signInWithEmailAndPassword(
+      await _client.auth.signInWithPassword(
         email: email.trim(),
         password: password,
       );
-    } on FirebaseAuthException catch (e) {
-      throw AuthFailure.fromCode(e.code, e.message);
+    } on AuthException catch (e) {
+      throw AuthFailure.fromMessage(e.message);
     }
   }
 
-  Future<void> signOut() => _auth.signOut();
+  Future<void> signOut() => _client.auth.signOut();
 }
 
 final authControllerProvider = Provider<AuthController>((ref) {
-  return AuthController(ref.watch(firebaseAuthProvider));
+  return AuthController(ref.watch(supabaseClientProvider));
 });
 
 class AuthFailure implements Exception {
-  final String code;
   final String message;
-  AuthFailure(this.code, this.message);
+  AuthFailure(this.message);
 
-  factory AuthFailure.fromCode(String code, String? raw) {
-    switch (code) {
-      case 'invalid-email':
-        return AuthFailure(code, 'E-mail inválido.');
-      case 'user-disabled':
-        return AuthFailure(code, 'Conta desativada. Procure o administrador.');
-      case 'user-not-found':
-      case 'invalid-credential':
-      case 'wrong-password':
-        return AuthFailure(code, 'E-mail ou senha incorretos.');
-      case 'too-many-requests':
-        return AuthFailure(
-          code,
-          'Muitas tentativas. Aguarde um momento e tente de novo.',
-        );
-      case 'network-request-failed':
-        return AuthFailure(
-          code,
-          'Sem conexão. Verifique sua internet e tente de novo.',
-        );
-      default:
-        return AuthFailure(code, raw ?? 'Não foi possível entrar.');
+  factory AuthFailure.fromMessage(String raw) {
+    final m = raw.toLowerCase();
+    if (m.contains('invalid login') ||
+        m.contains('invalid_credentials') ||
+        m.contains('invalid credentials')) {
+      return AuthFailure('E-mail ou senha incorretos.');
     }
+    if (m.contains('email not confirmed')) {
+      return AuthFailure(
+          'E-mail não confirmado. Verifique sua caixa de entrada.');
+    }
+    if (m.contains('rate limit') || m.contains('too many')) {
+      return AuthFailure(
+          'Muitas tentativas. Aguarde um momento e tente de novo.');
+    }
+    if (m.contains('network') || m.contains('failed to connect')) {
+      return AuthFailure(
+          'Sem conexão. Verifique sua internet e tente de novo.');
+    }
+    return AuthFailure(raw);
   }
 
   @override
