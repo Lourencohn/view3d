@@ -7,6 +7,6 @@
 ///
 /// NUNCA cole aqui a `service_role` key — ela ignora RLS.
 class SupabaseConfig {
-  static const String url = 'PLACEHOLDER_SUPABASE_URL';
-  static const String anonKey = 'PLACEHOLDER_SUPABASE_ANON_KEY';
+  static const String url = 'https://vvzwsaglaffsgpmijoyk.supabase.co';
+  static const String anonKey = 'sb_publishable_smmfhsJZQJMEpaLifqN7kg_2rCfyueS';
 }

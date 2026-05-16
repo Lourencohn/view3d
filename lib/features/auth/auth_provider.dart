@@ -75,7 +75,16 @@ final authStateProvider = Provider<AppAuthState>((ref) {
   return usuario.when(
     loading: () => const AuthLoading(),
     error: (_, __) => const AuthSignedOut(),
-    data: (u) => u == null ? const AuthLoading() : AuthSignedIn(u),
+    data: (u) {
+      if (u == null) {
+        // Sessão válida mas sem profile em public.profiles — desloga
+        // pra evitar loop de loading. Rode o SQL de seed (CLAUDE.md §4.4)
+        // ou crie o profile manualmente no Table Editor.
+        Future(() => ref.read(supabaseClientProvider).auth.signOut());
+        return const AuthSignedOut();
+      }
+      return AuthSignedIn(u);
+    },
   );
 });
 

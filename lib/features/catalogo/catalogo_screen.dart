@@ -83,7 +83,7 @@ class CatalogoScreen extends ConsumerWidget {
                     crossAxisCount: 2,
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10,
-                    childAspectRatio: 0.72,
+                    childAspectRatio: 0.64,
                   ),
                   itemCount: list.length,
                   itemBuilder: (ctx, i) {

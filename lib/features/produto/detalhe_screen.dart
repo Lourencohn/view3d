@@ -75,7 +75,7 @@ class _DetalheView extends StatelessWidget {
                     ar: true,
                     arModes: const ['webxr', 'scene-viewer', 'quick-look'],
                     arScale: ArScale.auto,
-                    shadowIntensity: 1.1,
+                    shadowIntensity: 1.0,
                     interactionPrompt: InteractionPrompt.none,
                     loading: Loading.eager,
                   ),

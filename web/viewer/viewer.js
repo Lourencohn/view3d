@@ -11,8 +11,8 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 // ─── Supabase config ────────────────────────────────────────────
 // Cole AS MESMAS chaves que estão em lib/supabase_config.dart.
 // A anon key é pública por design — pode commitar.
-const SUPABASE_URL = 'PLACEHOLDER_SUPABASE_URL';
-const SUPABASE_ANON_KEY = 'PLACEHOLDER_SUPABASE_ANON_KEY';
+const SUPABASE_URL = 'https://vvzwsaglaffsgpmijoyk.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_smmfhsJZQJMEpaLifqN7kg_2rCfyueS';
 
 const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
